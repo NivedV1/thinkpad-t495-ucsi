@@ -18,7 +18,7 @@ workaround is plausible and described below.
 
 - Support report: [`report/thinkpad-t495-ucsi-report.md`](report/thinkpad-t495-ucsi-report.md)
 - Raw captures: [`data/`](data/) and [`windows_ucsi/`](windows_ucsi/README.md)
-- If you own an affected ThinkPad, please run [the two-command check](#is-your-machine-affected) and open an issue.
+- If you own an affected ThinkPad, please run [the read-only check](#step-5--how-to-check-your-machine) and open an issue.
 
 > **This project writes to firmware-owned memory when you ask it to.** The
 > module is read-only by default. The write is RAM-only and disappears on
@@ -55,7 +55,142 @@ workaround is plausible and described below.
 | 9 | PD presence is a registration-time snapshot: the partner's `supports_usb_power_delivery` is set once, the PD object usually links a few seconds later, and occasionally never links at all. |
 | 10 | UCSI connector numbering is swapped relative to ACPI `_ADR` and the kernel's `usbN-portM` links. |
 
-## Is your machine affected?
+## Identify it step by step
+
+The path from "Linux has no USB-C" to "the firmware returns one PDO", in the
+order the evidence appeared. Each step lists what to run, what this machine
+returned, and what it rules out. The detailed version is in
+[What we found](#what-we-found).
+
+### Step 1 — Linux: the Type-C driver never binds
+
+```bash
+$ ls /sys/class/typec/ | wc -l
+0
+$ cat /sys/bus/platform/devices/USBC000:00/modalias
+acpi:USBC000:PNP0CA0:
+$ sudo dmesg | grep -iE 'ucsi|typec'
+(nothing)
+```
+
+The ACPI device exists, `_CRS` declares the register block, `_DSM` works — and
+probe still fails without a message. kprobes on the probe path show where:
+
+```text
+ucsi_probe:     (ucsi_acpi_probe+0x4/0x210 [ucsi_acpi])
+r_ver:          (ucsi_register+0x1d/0xa0 [typec_ucsi] <- ucsi_acpi_read_version) arg1=0
+r_reg:          (ucsi_acpi_probe+0x163/0x210 [ucsi_acpi] <- ucsi_register) arg1=-19
+ucsi_probe_ret: (platform_probe+0x67/0x90 <- ucsi_acpi_probe) arg1=-19
+```
+
+The version read succeeds and returns `0`. `ucsi_register()` then does:
+
+```c
+if (!ucsi->version)
+        return -ENODEV;
+```
+
+`-19` is `-ENODEV`. Probe gives up silently, so the first symptom is not "wrong
+data" but "no data": no ports, no PD, no alt modes. Charging and USB data keep
+working because the EC handles them without the OS.
+
+Raw before/after register dump: [`data/ucsi-register-block.txt`](data/ucsi-register-block.txt).
+
+### Step 2 — Windows: the same firmware answers every command
+
+Boot Windows on the same machine and look at the same ACPI device:
+
+```powershell
+Get-PnpDevice -InstanceId 'ACPI\USBC000\0' | Select-Object Status,Problem
+```
+
+```text
+Status  OK   Problem  0
+```
+
+`UcmUcsiAcpiClient.sys` binds, Microsoft's UCSI test tool completes
+`GET_CAPABILITY`, `GET_CONNECTOR_STATUS` and `GET_PDOS`, and both the PPM and
+the client driver print version `0.0.0`. The transport, the EC mailbox and the
+`_DSM` all work; only Linux's `version == 0` check rejects the interface.
+
+Then read the PDO list. One batch request for four PDOs returns one:
+
+```text
+NumberOfPdos: 3   (zero-based: four requested)
+PdoOffset:    0
+CCI DataLength: 4
+MESSAGE_IN:   2c 91 01 0a   -> 0x0A01912C   5 V / 3 A
+```
+
+The same request, one offset at a time, returns the whole list:
+
+| Offset | `DataLength` | PDO | Decoded |
+|---|---|---|---|
+| 0 | 4 | `0x0A01912C` | 5 V / 3 A |
+| 1 | 4 | `0x0002D12C` | 9 V / 3 A |
+| 2 | 4 | `0x0004B12C` | 15 V / 3 A |
+| 3 | 4 | `0x0006414F` | 20 V / 3.35 A (67 W Xiaomi) |
+| 4 | 0 | — | end of list |
+
+The Lenovo 65 W adapter gives the same four voltages with PDO 4 =
+`0x00164145` (20 V / 3.25 A). So the four entries exist, each offset read is
+individually correct, and only the multi-PDO read is short.
+
+That separates two independent firmware defects: **VERSION is zero**, and
+**`GET_PDOS` ignores the four-PDO request**. Windows exposes both; it just does
+not reject the device over the first one. Full transcripts:
+[`windows_ucsi/`](windows_ucsi/README.md).
+
+### Step 3 — Why it happens
+
+Four layers, in order:
+
+| Layer | What happens | Evidence |
+|---|---|---|
+| Firmware | reports `VERSION = 0x0000` | register dump; Windows PPM `0.0.0` |
+| Linux | `ucsi_register()` returns `-ENODEV` on version zero | kprobe `arg1=-19` |
+| Firmware | returns one PDO for a four-PDO `GET_PDOS` | `CCI DataLength: 4` |
+| Linux | reads the batch once and keeps one entry | `num_pdos = ret / 4 = 1` |
+
+`ucsi_get_pdos()` in v6.19 returns as soon as the first read is short, so
+offsets 1–3 are never requested and `src_pdos[1..3]` stay zero. Every
+"impossible" sysfs value follows from that one missing read:
+
+| Attribute | Source | Value |
+|---|---|---|
+| `voltage_now` | `src_pdos[rdo_index - 1]` = `src_pdos[3]` | 0 |
+| `voltage_max` | `src_pdos[num_pdos - 1]` = PDO 1 | 5 V |
+| `current_max` | PDO 1 | 3 A |
+| `current_now` | RDO operating current | 3.25 A |
+
+Nothing negotiated 5 V / 3 A. The real contract is in the RDO: `0x43051545`
+selects position 4 (the 20 V PDO) at 3.25 A, which is 65 W, and the battery
+draw agrees with 20 V input. The full derivation is in
+[§3 and §4 below](#3-what-the-truncated-reply-does-to-linux).
+
+### Step 4 — Who it affects
+
+**Linux users on affected firmware.** The whole `typec` class is missing, with
+no error message: no PD information, no cable e-marker, no partner identity, no
+USB-C hotplug events, no DisplayPort over USB-C. This is a kernel-level check,
+so the distribution and desktop do not matter.
+
+**Windows users.** Windows does not reject the device, so it looks healthy in
+Device Manager. But any UCSI consumer still receives one PDO per batch read, and the local
+source PDOs are still invalid (`0 mV / 0 mA`, `1050 mV / 2560 mA`). The
+difference is enforcement, not data.
+
+**Anyone reading firmware data.** Tools and drivers that trust the reply length
+will under-report the charger; tools that walk offsets (as Microsoft's does)
+see four PDOs. That is why the same machine can produce two different answers.
+
+**Confirmed scope.** One ThinkPad T495, MTM `20NKS29V00`, BIOS `R12ET64W`
+(1.34), Fedora 44, kernel 6.19.10. The same VERSION defect was reported for a
+T14 Gen 2a (AMD) on linux-usb, where the UCSI maintainer called it a firmware
+bug. Sister models (T14s, X13, other AMD ThinkPads of that generation) are
+plausible but unconfirmed. No fixed BIOS is known.
+
+### Step 5 — How to check your machine
 
 Read-only. Nothing is modified.
 
@@ -69,17 +204,24 @@ sudo dmesg | grep -iE 'ucsi|typec'
 sudo ./scripts/10-dump-ucsi.sh
 ```
 
-Interpretation:
-
 | Observation | Meaning |
 |---|---|
 | `modalias` is `acpi:USBC000:PNP0CA0:`, `typec` count is 0, dmesg silent | your firmware has the same defect |
 | `VERSION=0x0000` in the module output | confirmed, same as this machine |
 | a driver is bound and ports already exist | **not affected** — please still report your model/BIOS, it narrows the range |
 
-If you also have Windows on the machine, [the Windows check](windows_ucsi/README.md#is-your-machine-affected)
-is the stronger test: it shows whether the platform's own UCSI client accepts
-the firmware, and lets you read the full PDO list the EC actually returns.
+If you also have Windows on the machine,
+[the Windows check](windows_ucsi/README.md#is-your-machine-affected) is the
+stronger test: it shows whether the platform's own UCSI client accepts the
+firmware, and lets you read the full PDO list the EC actually returns.
+
+If the driver binds on your machine (or after the RAM patch), the same
+per-offset walk can be done in Linux without Windows:
+
+```bash
+sudo ./scripts/20-enable-ucsi.sh    # RAM-only version patch; see docs/safety.md
+sudo ./scripts/25-walk-pdos.sh
+```
 
 ## What we found
 
