@@ -102,7 +102,7 @@ connector. Capture: [`data/logs/2-charger-nonpd`](../data/logs/2-charger-nonpd)
 (in that run an unrelated audio adapter was on the other connector, hence
 `port0 ... partner=yes`).
 
-## T6 — USB-A charger produces a fabricated PD contract
+## T6 — a charger that cannot do PD is reported with a PD contract
 
 Plug a Xiaomi 67 W Charging Combo (Type-A, MDY-12-EJ) with its own A-to-C cable.
 
@@ -132,6 +132,10 @@ PD cannot exist on an A-to-C cable, and 5 V x 3 A cannot deliver 17 W, so the
 reported contract does not describe the power path. Capture:
 [`data/logs/3-xiaomi-a-to-c`](../data/logs/3-xiaomi-a-to-c),
 [`data/measurements`](../data/measurements).
+
+This test alone invites an objection: maybe the EC reported what that unusual
+cable negotiated. T7c removes it — the machine's own 65 W PD adapter produces
+the identical `5 V / 3 A` table while delivering 17.37 W.
 
 ## T7 — same phone, both connectors: PD state is not stable
 
@@ -177,6 +181,47 @@ Both attaches landed on the same `port1`. `supports_usb_power_delivery` is
 captured once at partner registration; `power_operation_mode` follows a later
 notification, so the two can disagree for the life of the attach. Capture:
 [`data/snapshots/xiaomi-charger-typec.txt`](../data/snapshots/xiaomi-charger-typec.txt).
+
+## T7c — flip the connector on the same adapter
+
+The strongest version of T7b needs no exotic charger: use the machine's own
+65 W adapter.
+
+```bash
+sudo ./scripts/40-watch.sh /tmp/t7c 300
+# attach the adapter, leave it for a few minutes, then unplug it, turn the
+# connector over, and plug it back in
+```
+
+Observed on this machine (Lenovo 65 W, 20 V / 3.25 A, same `port1` throughout):
+
+```text
+23:20:07-23:28:19  opmode=usb_power_delivery  supports_pd=no   no PD object at all
+23:28:20           unplug; opmode stays usb_power_delivery (stale)
+23:28:24  replug   opmode=usb_power_delivery  supports_pd=yes  PD object not yet linked
+23:28:25           PD device directory exists but is not linked to the partner
+23:28:26           PD object linked: rev 2.0, source PDO 5 V / 3 A
+```
+
+Check all four together, because any one alone is misleading:
+
+```bash
+cat /sys/class/typec/port1/power_operation_mode
+cat /sys/class/typec/port1-partner/supports_usb_power_delivery
+readlink -f /sys/class/typec/port1-partner/usb_power_delivery
+cat /sys/class/typec/port1-partner/usb_power_delivery/source-capabilities/*/voltage
+```
+
+Then compare the reported PDO with the battery:
+
+```bash
+cat /sys/class/power_supply/BAT0/power_now      # 17369000 uW on this machine
+cat /sys/class/power_supply/BAT0/voltage_now    # 11634000 uV
+```
+
+17.37 W into the pack at 11.63 V is 1.49 A, and it is more than the reported
+`5 V x 3 A` source can supply in total, before system draw. Capture:
+[`data/snapshots/lenovo-65w-typec.txt`](../data/snapshots/lenovo-65w-typec.txt).
 
 ## T8 — PDOs, alt modes, identity, stale state
 

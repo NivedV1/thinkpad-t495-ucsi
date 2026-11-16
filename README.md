@@ -39,8 +39,8 @@ machines — that is why this repo exists.** No fix is known.
 |---|---|
 | 1 | The ACPI UCSI device is present and well-formed (`_HID USBC000`, `_CID PNP0CA0`, `_CRS` region `0xBD6B2000+0x1000`, `_DSM` via EC mailbox), but **VERSION reads `0x0000`**. `ucsi_register()` treats that as unusable and returns `-ENODEV`, so `/sys/class/typec/` is empty. Probe fails silently. |
 | 2 | Patching VERSION in RAM (test only) makes the driver bind and ports appear. **The data is still wrong.** |
-| 3 | A Xiaomi 67 W **USB-A** charger — where PD is physically impossible — is reported as a **PD 2.0 contract of 5 V / 3 A**, while the battery is measured charging at **17.07 W**, more than a 5 V / 3 A source can deliver. |
-| 4 | PD state is **not stable**: the partner's `supports_usb_power_delivery` is a snapshot taken when the partner is registered, while the port's `power_operation_mode` is updated later. The same charger read `no` before a replug and `yes` after it on the **same** port, with its PD object appearing about 3 s after the partner. |
+| 3 | The machine's **own Lenovo 65 W adapter** (rated 20 V / 3.25 A) is reported with a single **PD 2.0 source capability of 5 V / 3 A** while the battery absorbs **17.37 W** — more than a 5 V / 3 A source can deliver. A Xiaomi 67 W **USB-A** charger, where PD is physically impossible, produces the same 5 V / 3 A table and **17.07 W**. |
+| 4 | PD state is **not stable**: the partner's `supports_usb_power_delivery` is a snapshot taken when the partner is registered, while the port's `power_operation_mode` is updated later. The same 65 W adapter read `no` with no PD object for eight minutes, then `yes` with a PD object after the connector was flipped — same port, same adapter. |
 | 5 | Ports advertise **invalid source PDOs** (`0 mV/0 mA` and `1050 mV/2560 mA`), never expose partner identity or cable e-marker data, and their alt-mode table cannot produce DisplayPort (`0xff01` is absent). |
 | 6 | UCSI **connector numbering is swapped** relative to ACPI `_ADR` and to the kernel's own `usbN-portM` links — proved from `_PLD` bytes, not inferred. |
 
@@ -96,32 +96,53 @@ Raw register dump, before and after the test write: [`data/ucsi-register-block.t
 ### 2. With VERSION patched, the interface binds but lies
 
 With `0x0100` or `0x0110` written into VERSION, the driver registers the
-interface and exposes `port0`, `port1`, partners and PSYs. Four attachments
-were tested 1 Hz at a time:
+interface and exposes `port0`, `port1`, partners and PSYs. Every attachment below
+was captured at 1 Hz:
 
 | Attachment | UCSI attach | `power_operation_mode` | Partner PD | Reality |
 |---|---|---|---|---|
 | Avocent USB audio | yes | `default` | no | correct |
 | Non-PD charger | **no** | — | — | AC goes online, battery charges, zero UCSI events |
+| **Lenovo 65 W adapter, orientation A** | yes | **`usb_power_delivery`** | **no, no PD object at all** | 20 V / 3.25 A part; battery 17.11–17.27 W |
+| **Lenovo 65 W adapter, orientation B** | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 3 A** | same part; battery 17.37 W |
 | Xiaomi 67 W **A-to-C** | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V/3 A** | PD impossible; 17.07 W measured |
 | Mi 11X **C-to-C**, connector A | yes | `default` | no | correct, but no source PD |
 | Mi 11X, connector B | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V/1.5 A** | same device, opposite answer at the time |
 | Mi 11X, back to connector A | yes | `default` | no | opposite again |
 
 The phone rows looked connector-dependent when they were taken. They are not
-stable: a later replug of the charger on one connector flipped the partner's
-`supports_usb_power_delivery` from `no` to `yes` on the **same** `port1`, with
-the PD object appearing about 3 s after the partner.
+stable: a later replug of the Xiaomi charger on one connector flipped the
+partner's `supports_usb_power_delivery` from `no` to `yes` on the **same**
+`port1`, with the PD object appearing about 3 s after the partner. Flipping the
+connector does the same thing to the Lenovo adapter: `no` for eight minutes, then
+`yes`, with the PD object linking one second after the partner appeared.
 `supports_usb_power_delivery` is set once in `ucsi_register_partner()` from the
 EC's `PWR_OPMODE`; `power_operation_mode` is updated later by
 `ucsi_pwr_opmode_change()`. A partner registered before the EC answers `PD`
 keeps `no`, so the two values can disagree for the life of the attach. See
 [`docs/pd-verdict.md`](docs/pd-verdict.md).
 
-### 3. The 17.07 W contradiction
+### 3. The 17 W contradiction, on a real 65 W adapter
 
-A USB-A charger has no CC conductor, so it cannot negotiate PD. UCSI reports a
-5 V / 3 A PD contract anyway. Meanwhile the battery energy counter, fitted over
+The machine's own Lenovo 65 W adapter is rated 20 V / 3.25 A. On both attaches
+UCSI reports one source capability, `5 V / 3 A`, and a PSY whose numbers cannot
+all be true at once:
+
+```text
+partner source PDO         5000 mV / 3000 mA      <- Type-C default, not the adapter
+PSY voltage_now            0 V
+PSY voltage_max            5000 mV
+PSY current_now            3250 mA                <- above its own 3000 mA maximum
+PSY usb_type               "C [PD] PD_PPS"        <- with one fixed 5 V supply
+battery                    17.37 W at 11.634 V    -> 1.49 A into the pack
+```
+
+5 V x 3 A is 15 W, and that is before system draw, so the input must exceed
+17 W: VBUS is above 5 V. The adapter is supplying a real contract above 5 V that
+UCSI does not describe.
+
+The same table appears for a Xiaomi 67 W **USB-A** charger, which has no CC
+conductor and cannot negotiate PD at all. The battery energy counter, fitted over
 six uninterrupted minutes:
 
 ```text
@@ -133,16 +154,16 @@ batt voltage   11.72 V -> 11.79 V      (rising = genuine charge)
 status/ac      Charging / 1            (no dropouts, no renegotiation)
 ```
 
-5 V x 3 A is 15 W, and that is before system draw, so the input must exceed
-17 W: VBUS is above 5 V. The charger's vendor cable unlocks that, and UCSI
-reports neither the real voltage nor a real contract.
+So the 5 V / 3 A list is not "what that odd cable negotiated" — it is what the
+EC returns regardless of what is attached.
 
 ### 4. Port and partner data is not usable
 
 ```text
 port0 source-capabilities/1:fixed_supply:      0 mV /    0 mA
 port1 source-capabilities/1:fixed_supply:   1050 mV / 2560 mA   <- not a valid PD voltage
-partner PDO (charger, both attaches):       5000 mV / 3000 mA
+partner PDO (Lenovo 65 W, 20 V / 3.25 A):   5000 mV / 3000 mA   <- Type-C default
+partner PDO (Xiaomi USB-A charger):         5000 mV / 3000 mA   <- identical
 PSY current_now (from the EC's RDO):        3250 mA after replug (3000 mA before)
                                               <- above the 3000 mA PDO
 PSY voltage_now (RDO position -> PDO):         0 mV, although the PDO is 5000 mV
@@ -184,6 +205,8 @@ Four attachments, same inversion every time. Details:
 | Hotplug with non-PD charger | AC online, battery charges, **no** UCSI event, no partner |
 | Hotplug with USB audio adapter | partner add/remove, `data_role` flips, ~1 s |
 | Xiaomi 67 W A-to-C charger | fabricated PD 2.0 / 5 V 3 A; **17.07 W** measured over 6 min |
+| **Lenovo 65 W adapter (20 V / 3.25 A), orientation A** | port says PD, partner says `no`, **no PD object for 8 min**; PSY 2.68 A; battery 17.11–17.27 W |
+| **Same adapter, connector flipped** | partner `yes`, PD object links 2 s after partner; PDO **5 V / 3 A**; PSY 3.25 A vs 3 A max; battery **17.37 W** |
 | Mi 11X C-to-C, both connectors, 3 attaches | opposite verdicts at the time; later replug shows the value is registration-time dependent |
 | Same charger, unplug/replug on one connector | `supports_pd` `no` -> `yes`; PD object ~3 s after partner; same `port1` both times |
 | PSY values derived from the EC's RDO | `current_now` 3.25 A vs 3 A PDO; `voltage_now` 0 V vs 5 V PDO |
@@ -258,22 +281,24 @@ template asks for model, BIOS, kernel and the `VERSION` line.
 | an affected ThinkPad with a **different BIOS** | whether Lenovo fixed this in a later release |
 | a T14 Gen 2a / T14s / X13 / other AMD ThinkPad of the same generation | how wide the defect is |
 | a Windows install on the same machine | whether Windows sees PD/DP alt mode, i.e. whether the EC data is wrong only via UCSI |
-| a USB-C inline power meter | whether the "PD" connector really negotiates a contract, and at what voltage |
+| a USB-C inline power meter | the actual VBUS/contract the EC negotiates, which UCSI never reports correctly |
 | a USB-C to HDMI/DP adapter | whether DP alt mode works despite the missing `0xff01` |
-| a **genuine PD** charger with a C-to-C cable | a real contract to compare the fabricated one against |
+| a **genuine PD** charger with a C-to-C cable | already done with the machine's own 65 W adapter — still useful on another machine |
 
 Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 `VERSION` value and whether the driver binds are the minimum to make it useful.
 
 ## What we still do not know
 
-- **Whether this connector genuinely negotiates PD.** The verdict changes between
-  attaches even on one connector, and the port's own PDOs and the RDO are invalid,
-  so the reported contract may be entirely fabricated. An inline USB-C meter
-  would settle it.
-- **The actual VBUS voltage** during the 17.07 W charge. No Linux interface
-  exposes it: `AC` has only `online`, and the UCSI PSYs report either 0 or a
-  value that does not match the port's own PDOs.
+- **The actual VBUS voltage.** The Lenovo 65 W adapter proves that a contract
+  above 5 V is in force — the battery takes 17.37 W, more than 5 V x 3 A can
+  supply — but no Linux interface reports the voltage. UCSI claims 5 V and 0 V
+  at different levels of the same stack. An inline USB-C meter would settle the
+  exact figure.
+- **What the EC is actually reading.** The same 5 V / 3 A table appears for a
+  65 W PD adapter and for a USB-A charger with no CC conductor, so the source
+  capability list is not derived from the attached supply at all. Which register
+  it is copied from would need a firmware-level trace.
 - **Whether DisplayPort over USB-C works in Windows** on this machine. If it
   does, the alt-mode table is a Linux-visible defect only.
 - **Whether a kernel quirk is appropriate** for the version field alone, given
@@ -293,7 +318,7 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 | `data/device-matrix.md` | every attachment, verbatim sysfs values |
 | `data/logs/` | 1 Hz state logs and filtered kernel events per test |
 | `data/measurements/` | 72-sample battery trace and the least-squares fit |
-| `data/snapshots/` | recorded sysfs state for the charger and both phone attaches |
+| `data/snapshots/` | recorded sysfs state for the Lenovo 65 W adapter (both orientations) and both phone attaches |
 | `docs/tests.md` | how to reproduce each test |
 | `docs/pd-verdict.md` | why `supports_usb_power_delivery` and `power_operation_mode` can disagree |
 | `docs/safety.md` | what the RAM write does and does not do |

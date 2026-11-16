@@ -75,6 +75,57 @@ Xiaomi 67 W Type-A charger on its own A-to-C cable, same `port1` both times,
 The charger and cable did not change. The connector did not change. The value
 flipped because the EC's answer arrived in a different order this time.
 
+## The same adapter, two attaches, opposite answers
+
+The strongest version of this needs no exotic charger. The machine's own Lenovo
+65 W adapter (label `20 V / 3.25 A`, MFG 6/2015) on `port1`
+(`data/snapshots/lenovo-65w-typec.txt`):
+
+| | Attach A | Attach B |
+|---|---|---|
+| when | 23:20–23:28 | from 23:28:24 |
+| what changed | — | connector flipped over in the port |
+| `power_operation_mode` | `usb_power_delivery` | `usb_power_delivery` |
+| partner `supports_usb_power_delivery` | `no` | **`yes`** |
+| partner PD object | **absent** | rev 2.0, source PDO 5 V / 3 A |
+| PSY `current_now` | 2.68 A | 3.25 A |
+| PSY `voltage_now` | 0 V | 0 V |
+| battery | Charging, 17.11–17.27 W | Charging, 17.37 W at 11.63 V |
+
+Flipping the connector does not change what the adapter can do. It only forces a
+detach and a fresh attach — and a fresh attach is where the snapshot is taken.
+Nine minutes of one orientation produced `no` with no PD object; the other
+orientation produced `yes` with a PD object.
+
+Attach B also catches the orphan window. At 23:28:25 the PD device existed under
+`port1-partner/` but the partner's `usb_power_delivery` link did not; it appeared
+one second later. `ucsi_register_partner_pdos()` registers `con->partner_pd`
+first and only links it to the partner after both `GET_PDOS` calls succeed:
+
+```c
+con->partner_pd = typec_partner_usb_power_delivery_register(con->partner, &desc);
+...
+cap = ucsi_get_pd_caps(con, TYPEC_SOURCE, true);
+if (IS_ERR(cap))
+        return PTR_ERR(cap);
+...
+return typec_partner_set_usb_power_delivery(con->partner, con->partner_pd);
+```
+
+The task is queued with one retry, but the retry is a no-op:
+
+```c
+if (con->partner_pd)
+        return 0;
+```
+
+So if the first `GET_PDOS` fails with `-EBUSY`, the object stays registered but
+never linked, and the retry cannot fix it. No message is logged for any error
+other than `-EBUSY`/`-ETIMEDOUT`, which are simply retried once and dropped.
+That is where an unlinked PD object can come from. It is not what happened on
+attach A — there `partnerpd_dirs=0`, so the registration was never reached at
+all — but it is the other way to lose the PD object.
+
 ## What this explains
 
 - The phone result: on two of three attaches the partner object said `no PD`
@@ -82,20 +133,28 @@ flipped because the EC's answer arrived in a different order this time.
   port said `usb_power_delivery`. On three samples, that is consistent with a
   race, not with a property of either connector.
 - Why `supports_usb_power_delivery = no` can coexist with
-  `power_operation_mode = usb_power_delivery` and a valid-looking PD object.
-- Why a replug can change the answer without moving the cable.
+  `power_operation_mode = usb_power_delivery` — with or without a PD object.
+- Why a replug can change the answer without moving the cable, and why flipping
+  the connector can do the same on the machine's own 65 W adapter.
+- Why "no PD object" and "PD object with a 5 V / 3 A PDO" are both observed for
+  a 20 V / 3.25 A adapter: the object's presence is decided by whether the
+  registration task ran while the EC was reporting `PD`.
 
 ## What it does not explain
 
-- The A-to-C charger. It has no CC conductor, so it cannot negotiate PD at all.
-  Yet every attach produced `power_operation_mode = usb_power_delivery` and a
-  PD 2.0 object with a 5 V / 3 A PDO, while the battery charged at 17.07 W.
+- The source capability itself. A 65 W adapter rated 20 V / 3.25 A is reported
+  with exactly one PDO, `5 V / 3 A`, on both attaches — the Type-C default, not
+  the contract. The A-to-C charger produces the same table even though it has no
+  CC conductor. Whatever produces that list is not reading the adapter.
+- Power conservation. `5 V x 3 A` is 15 W; the battery alone takes 17.37 W at
+  11.63 V. The reported contract cannot be the one in force.
 - The invalid source PDOs (`0 mV / 0 mA`, `1050 mV / 2560 mA`).
-- The RDO-derived PSY values: `current_now` 3.25 A against a 3 A PDO, and
+- The RDO-derived PSY values: `current_now` 3.25 A against a 3 A maximum, and
   `voltage_now` 0 V against a 5 V PDO.
 - The swapped connector numbering relative to ACPI `_PLD`.
 
-Those stand on their own.
+Those stand on their own. The registration-time race removes the "is it the
+charger?" question; it does not make the data usable.
 
 ## The `0.0` revision is not part of this
 

@@ -12,6 +12,14 @@ patched to 0x0110 in RAM (one boot only). "UCSI says" is verbatim from
 | 4 | Mi 11X (18d1:4ee2 / 18d1:4e11) | C-to-C | yes, `usb 2-4` | yes | host | source | `default` | no | correct, but no source PD |
 | 5 | Mi 11X, same cable | C-to-C | yes, `usb 2-1` | yes | host | source | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 1.5 A** | same device, opposite verdict at the time |
 | 6 | Mi 11X, back to first connector | C-to-C | yes, `usb 2-4` | yes | host | source | `default` | no | opposite again |
+| 7 | Lenovo 65 W adapter (20 V / 3.25 A, MFG 6/2015), orientation A | captive C | none | yes | device | **sink** | **`usb_power_delivery`** | **no, no PD object for 8 min** | 17.11-17.27 W measured |
+| 8 | same adapter, connector flipped over | captive C | none | yes | device | **sink** | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 3 A** | 17.37 W measured at 11.63 V |
+
+Rows 7-8 are the machine's own charger, the same part, on the same `port1`,
+with only the connector flipped. One attach never linked a PD object at all;
+the other linked one 2 s after the partner appeared. The 5 V / 3 A table is
+identical in both, and identical to row 3, even though row 3 cannot do PD and
+row 8 delivers more than 17 W. See `snapshots/lenovo-65w-typec.txt`.
 
 Rows 4-6 were three separate attaches with fresh enumeration each time
 (`usb 2-4: new high-speed USB device number N`), so the difference is not a

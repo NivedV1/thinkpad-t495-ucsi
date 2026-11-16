@@ -1,0 +1,113 @@
+# Recorded 2026-11-16 23:20-23:31 IST with the machine's own Lenovo 65 W
+# adapter (label: 20 V / 3.25 A, 65 W, MFG DATE 6/2015) on port1.
+# UCSI VERSION patched to 0x0110 in RAM, ucsi_acpi bound, no other UCSI source.
+# Only the fields listed were read; nothing inferred.
+
+SAME ADAPTER, SAME PORT, TWO ATTACHES.
+
+--------------------------------------------------------------------------------
+ATTACH A - 23:20 to 23:28 IST (connector in the first orientation; partner appeared 23:20:07)
+
+/sys/class/typec/port1
+  power_operation_mode          usb_power_delivery
+  power_role                    source [sink]
+  usb_power_delivery_revision   2.0
+  partner object                present
+  cable object                  none
+
+/sys/class/typec/port1-partner
+  supports_usb_power_delivery   no
+  usb_power_delivery_revision   0.0
+  usb_power_delivery            (absent - no PD object was ever linked)
+  id_header / product           (empty)
+  number_of_alternate_modes     0
+
+ucsi-source-psy-USBC000:002
+  usb_type                      "C [PD] PD_PPS"
+  online                        1
+  status                        Charging
+  voltage_now                   0 uV
+  voltage_min / voltage_max     5000000 / 5000000 uV
+  current_max                   3000000 uA
+  current_now                   2680000 uA
+
+AC online=1, BAT0 38%, status=Charging, power_now 17.11-17.27 W, voltage_now 11.43 V.
+The port has claimed PD for the whole attach while no PD object exists.
+
+--------------------------------------------------------------------------------
+ATTACH B - 23:28:24 IST (same port, connector flipped over, same adapter)
+
+Before the flip: partner present, supports_usb_power_delivery=no, no PD object.
+The 1 Hz capture caught every transition:
+
+  23:28:19  part=yes spd=no   pdobj=no   psy online=1 inow=2680000  BAT 17.272 W
+  23:28:20  part=no  -        -          psy online=0              BAT discharging
+  23:28:22  part=no  -        -          AC back online, BAT "Not charging"
+  23:28:24  part=yes spd=yes  pdobj=no   psy online=1 inow=3250000
+  23:28:25  pdobj=no but a PD device directory exists, not yet linked   (1.1 s)
+  23:28:26  PD object linked: rev 2.0, source PDO 5000 mV / 3000 mA
+  23:28:28  BAT 17.253 W and charging
+
+/sys/class/typec/port1
+  power_operation_mode          usb_power_delivery
+  usb_power_delivery_revision   2.0
+
+/sys/class/typec/port1-partner
+  supports_usb_power_delivery   yes                    <- was "no" 4 s earlier
+  usb_power_delivery_revision   0.0
+  usb_power_delivery -> /sys/devices/platform/USBC000:00/typec/port1/port1-partner/pd2
+  id_header / product           (empty)
+
+/sys/class/typec/port1-partner/usb_power_delivery/pd2
+  revision                      2.0
+  source-capabilities/1:fixed_supply
+    voltage                    5000 mV
+    maximum_current            3000 mA
+    peak_current               1
+    unconstrained_power        1
+    dual_role_power            0
+    dual_role_data             1
+
+ucsi-source-psy-USBC000:002
+  usb_type                      "C [PD] PD_PPS"
+  online                        1
+  status                        Charging
+  voltage_now                   0 uV                  <- against a 5000 mV PDO
+  voltage_min / voltage_max     5000000 / 5000000 uV
+  current_max                   3000000 uA
+  current_now                   3250000 uA            <- above its own 3000000 uA max
+
+BAT0 at the same time, 43%:
+  status                        Charging
+  power_now                     17.369 W
+  voltage_now                   11.634 V              -> 1.49 A into the pack
+
+--------------------------------------------------------------------------------
+WHAT THE TWO ATTACHES AGREE ON
+
+1. The adapter is a 65 W part rated 20 V / 3.25 A. The only source capability
+   UCSI ever reports for it is a single 5 V / 3 A fixed supply - the USB Type-C
+   default current at the default voltage, not a 20 V contract.
+
+2. 5 V x 3 A = 15 W. The battery alone absorbs 17.37 W at 11.63 V, plus system
+   load, so VBUS cannot be 5 V. The reported source capability cannot be the
+   contract in force.
+
+3. The RDO-derived PSY values are internally inconsistent: current_now 3.25 A
+   against a 3 A maximum, voltage_now 0 V against a 5 V entry.
+
+4. supports_usb_power_delivery is not a property of the adapter. It read "no"
+   for eight minutes on attach A and "yes" for the whole of attach B, with the
+   same adapter, port and cable state. Only the connector's orientation changed,
+   which forces a fresh attach - and a fresh attach takes a new snapshot of the
+   EC's PWR_OPMODE at partner-registration time (ucsi_register_partner()).
+
+5. On attach B the partner PD object existed at 23:28:25 but was still unlinked
+   one second later, then linked at 23:28:26. ucsi_register_partner_pdos()
+   creates con->partner_pd first and only calls
+   typec_partner_set_usb_power_delivery() after both GET_PDOS calls succeed, so
+   a failed capability read leaves an orphan PD object and an unlinked partner.
+
+Raw 1 Hz lines for both attaches were captured outside the repo; the transitions
+above are the complete set of state changes in the 4-minute window covering the
+flip. See docs/pd-verdict.md for the kernel-side explanation.
