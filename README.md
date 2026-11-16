@@ -114,9 +114,10 @@ every `GET_CAPABILITY`, `GET_CONNECTOR_STATUS` and `GET_PDOS` command sent throu
 Microsoft's UCSI test tool — while printing `UCSI VERSION from PPM: 0.0.0` and
 `from client driver: 0.0.0`. The transport, the EC mailbox and the ACPI `_DSM`
 all work. Only Linux's `version == 0` check rejects the interface, so a DMI quirk
-in `ucsi_acpi` would let the driver bind here — the same kind of workaround
-already carried for one Acer and one LG Gram model. What that would expose is the
-subject of §2 and §3.
+in `ucsi_acpi` would let the driver bind here. The driver already carries one
+per-model quirk (LG Gram, selecting an alternate ops table), but nothing that
+touches the version check. What such a quirk would expose is the subject of §2
+and §3.
 
 ### 2. `GET_PDOS` returns one PDO, whatever the request asks for
 
@@ -265,6 +266,13 @@ connector 2:  00 00 00 20 00 00 00 00 01   -> change bits 0x0000
 every capture, across reads and attach/detach cycles, identically on Linux and
 Windows. A consumer polling for changes therefore keeps seeing the same event
 on connector 1.
+
+Upstream already carries one workaround in this area: the LG Gram quirk in
+`ucsi_acpi.c` clears `POWER_LEVEL_CHANGE | PDOS_CHANGE` from the status directly
+after a partner `GET_PDOS`. This machine's pair is different
+(`CONNECT_CHANGE | POWER_LEVEL_CHANGE`), and `CONNECT_CHANGE` is genuine signal,
+so the LG approach cannot simply be reused — but it is a precedent for treating
+post-`GET_PDOS` change bits as firmware noise.
 
 Byte 8 is `BatteryChargingStatus` (`01`), not orientation. The orientation bit
 is `UCSI_CONSTAT_ORIENTATION` = bit 86, i.e. byte 10, and the response stops at

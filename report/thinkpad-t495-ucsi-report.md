@@ -91,7 +91,7 @@ Client driver:                         UcmUcsiAcpiClient.sys
 
 Every `GET_CAPABILITY`, `GET_CONNECTOR_CAPABILITY`, `GET_CONNECTOR_STATUS` and `GET_PDOS` command returned `Command completed successfully`. Microsoft's UCSI test tool is the mechanism; it needs the device's diagnostic interface enabled temporarily (`TestInterfaceEnabled=1`), which was restored afterwards. Only `GET_*` commands were sent.
 
-So the zero version does not prevent the platform's own UCSI client from operating. It is rejected only by Linux's `version == 0` check. A DMI quirk in `ucsi_acpi`, like the existing ones for one Acer and one LG Gram model, would let the driver bind; the defects in §3 and §6–§8 would remain.
+So the zero version does not prevent the platform's own UCSI client from operating. It is rejected only by Linux's `version == 0` check. A DMI quirk in `ucsi_acpi` would let the driver bind; that file already contains one per-model quirk (LG Gram, selecting an alternate ops table), though nothing that touches the version check. The defects in §3 and §6–§8 would remain.
 
 ## 3. GET_PDOS returns one PDO per request
 
@@ -291,7 +291,7 @@ UCSI maintainer Heikki Krogerus:
 > "Again with the missing version. Please contact Lenovo. This is a bug in their
 > firmware. The version field must supply the actual ucsi version."
 
-Writing `0x0100` into the version field made the driver bind there too, and USB-C display hotplug was reported working. Current mainline has **no Lenovo quirk** for this; the only zero-version workarounds are DMI quirks for one Acer and one LG Gram model, so T495/T14 Gen 2a users have no automatic fix.
+Writing `0x0100` into the version field made the driver bind there too, and USB-C display hotplug was reported working. Current mainline has **no Lenovo quirk and no zero-version workaround at all**; the only DMI quirk in `ucsi_acpi.c` is for one LG Gram model and only selects an alternate ops table. T495/T14 Gen 2a users therefore have no automatic fix.
 
 ## 12. Request to Lenovo
 
