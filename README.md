@@ -175,6 +175,9 @@ ret = ucsi_read_pdos(con, role, is_partner, pdos, UCSI_MAX_PDOS, ...);
 
 With `DataLength: 4`, `num_pdos` is 1, the early return fires, and offsets 1–3
 are never requested. `con->num_pdos = 1` and `con->src_pdos[1..3]` remain zero.
+The request itself is not the difference: `ucsi_read_pdos()` encodes
+`UCSI_GET_PDOS_NUM_PDOS(num_pdos - 1)`, so Linux sends `NumberOfPdos: 3` — the
+same four-PDO command the Windows tool sent.
 The first entry is correct — Linux reads exactly the same `0x0A11912C`
 (ThinkPad) / `0x0A01912C` (Xiaomi) that Windows reports.
 
