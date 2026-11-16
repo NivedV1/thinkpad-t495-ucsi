@@ -32,3 +32,75 @@ ucsi-source-psy-USBC000:001
   voltage_max                  5000 mV
 
 Battery at the same time: status=Charging, AC online=1, energy slope 17.07 W.
+
+--------------------------------------------------------------------------------
+SECOND ATTACH, 2026-11-16 22:03-22:04 IST, same charger, 15 consecutive 1 Hz
+samples, all identical:
+
+/sys/class/typec/port1   (partner created under port1 this time)
+  power_operation_mode          usb_power_delivery
+  usb_power_delivery_revision   2.0
+  partner object                present
+  cable object                  none
+
+/sys/class/typec/port1-partner
+  supports_usb_power_delivery   no          <- was "yes" on the first attach
+  usb_power_delivery_revision   0.0
+  id_header / product           (empty)
+  number_of_alternate_modes     0
+
+/sys/class/typec/port1-partner/usb_power_delivery
+  revision                      2.0
+  source-capabilities/1:fixed_supply
+    voltage                    5000 mV
+    maximum_current            3000 mA
+
+ucsi-source-psy-USBC000:002
+  online                        1
+  status                        Charging
+  current_now                   3000000 uA     <- 3 A
+  voltage_now                   0 uV           <- 0 V at 3 A
+
+AC online=1, battery status=Charging.
+
+So on one attach the partner says it does not support PD while the port says the
+operation mode is PD and a PD 2.0 object with a 5 V/3 A PDO exists. On the first
+attach the same charger reported supports_usb_power_delivery=yes. See
+docs/pd-verdict.md for why the two values can disagree.
+
+--------------------------------------------------------------------------------
+THIRD RECORD: UNPLUG AND REPLUG ON THE SAME CONNECTOR, 2026-11-16 22:05-22:08
+IST. 1 Hz capture, 180 samples, full log kept outside the repo; the transitions
+and the post-replug values are reproduced here.
+
+Timeline (only state changes are shown; nothing between the rows changed):
+
+  22:05:00  port1 opmode=usb_power_delivery
+            partner supports_usb_power_delivery=no
+            PD object rev 2.0, source PDO 5000 mV / 3000 mA
+            psy current_now=3000000, voltage_now=0, online=1
+  22:06:47  unplug: port1 opmode=default, partner gone, psy offline
+  22:06:54  replug: port1 opmode=usb_power_delivery
+            partner supports_usb_power_delivery=yes
+            PD object not yet present (source PDO unreadable)
+            psy current_now=3250000, voltage_now=0, online=1
+  22:06:57  PD object appears: rev 2.0, source PDO 5000 mV / 3000 mA
+  22:08:21  unchanged (end of capture)
+
+port0 never received a partner during the capture, so both attaches landed on
+the same UCSI connector, port1 / _SB.UBTC.CR02.
+
+Same port, same charger, same cable. The only value that changed at the partner
+level was supports_usb_power_delivery: no -> yes. The live port state
+(power_operation_mode) was usb_power_delivery on both sides of the replug.
+
+Kernel-side reason: supports_usb_power_delivery is desc.usb_pd, captured once in
+ucsi_register_partner() from UCSI_CONSTAT(PWR_OPMODE). power_operation_mode is
+set later by ucsi_pwr_opmode_change(). If the EC answers "default" at partner
+registration and "PD" a few seconds later, the partner keeps "no" for the whole
+attach while the port reports PD and a PD object exists. See docs/pd-verdict.md.
+
+RDO-derived PSY values on this attach:
+  current_now = rdo_op_current(rdo) = 3250 mA, while the only PDO is 3000 mA
+  voltage_now = rdo_index(rdo) indexes the 5000 mV PDO, but reads 0 mV
+Both imply the EC's Request Data Object does not describe a valid contract.

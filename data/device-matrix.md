@@ -10,12 +10,17 @@ patched to 0x0110 in RAM (one boot only). "UCSI says" is verbatim from
 | 2 | Non-PD charger ("charger #1") | C-to-C | none (no data) | **no** | - | - | - | - | AC=1, battery charging, zero UCSI events |
 | 3 | Xiaomi 67 W Combo (Type-A), MDY-12-EJ | A-to-C | none (A port, no data) | yes | device | **sink** | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 3 A** | PD impossible over A-to-C; 17.07 W measured |
 | 4 | Mi 11X (18d1:4ee2 / 18d1:4e11) | C-to-C | yes, `usb 2-4` | yes | host | source | `default` | no | correct, but no source PD |
-| 5 | Mi 11X, same cable | C-to-C | yes, `usb 2-1` | yes | host | source | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 1.5 A** | same device, opposite verdict |
-| 6 | Mi 11X, back to first connector | C-to-C | yes, `usb 2-4` | yes | host | source | `default` | no | verdict follows the connector |
+| 5 | Mi 11X, same cable | C-to-C | yes, `usb 2-1` | yes | host | source | **`usb_power_delivery`** | **yes, PD 2.0, 5 V / 1.5 A** | same device, opposite verdict at the time |
+| 6 | Mi 11X, back to first connector | C-to-C | yes, `usb 2-4` | yes | host | source | `default` | no | opposite again |
 
 Rows 4-6 were three separate attaches with fresh enumeration each time
 (`usb 2-4: new high-speed USB device number N`), so the difference is not a
 stale cached value.
+
+They were read as connector-dependent at the time. They are not stable: a later
+replug of the charger on one connector flipped `supports_usb_power_delivery`
+from `no` to `yes` on the same `port1`, so rows 4-6 are better read as a
+registration-time race. See `snapshots/xiaomi-charger-typec.txt`.
 
 ## Port capabilities as reported
 
@@ -27,7 +32,11 @@ port1 sink-capabilities/1:fixed_supply:   5000 mV /  100 mA
 ```
 
 `usb_power_delivery_revision` on the port is always `2.0`. On the partner it
-reads `0.0` even when the partner's PD object reports `2.0`.
+reads `0.0` even when the partner's PD object reports `2.0`; that is kernel-side
+(`desc.pd_revision` is only filled at UCSI >= 2.1), not a firmware fault.
+
+The PSY is derived from the EC's RDO: `current_now` read 3.25 A against the 3 A
+PDO after a replug, and `voltage_now` read 0 V although the PDO is 5 V.
 
 ## Alternate modes (identical on all four port entries)
 

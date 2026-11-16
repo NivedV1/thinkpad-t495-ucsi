@@ -2,7 +2,7 @@
 
 **Machine:** 20NK•••••• · BIOS `R12ET64W (1.34)`, 2024-02-23
 
-**Subject:** The UCSI VERSION register reads `0x0000`, so Linux `ucsi_acpi` refuses to bind (`-ENODEV`) and no Type-C ports exist. Forcing the version field to a valid value makes the interface bind, and the port/partner data it then exposes is internally inconsistent: a fabricated PD contract on a charger that cannot do PD, a connector-dependent PD verdict for the same phone, invalid source PDOs, no identity or cable data, and swapped connector numbering.
+**Subject:** The UCSI VERSION register reads `0x0000`, so Linux `ucsi_acpi` refuses to bind (`-ENODEV`) and no Type-C ports exist. Forcing the version field to a valid value makes the interface bind, and the port/partner data it then exposes is internally inconsistent: a fabricated PD contract on a charger that cannot do PD, an unstable PD verdict that changes between attaches, invalid source PDOs, no identity or cable data, and swapped connector numbering.
 
 **Raw captures and reproduction scripts:** https://github.com/NivedV1/thinkpad-t495-ucsi
 
@@ -15,7 +15,7 @@ This alone is the same defect reported for ThinkPad T14 Gen 2a (AMD) on linux-us
 To determine whether the zero version was the only fault, the version field was patched in RAM for testing (volatile, one boot only). The interface then binds and exposes ports — but the values it reports are not usable:
 
 - A Xiaomi 67 W USB-A charger (no CC pin, PD physically impossible) is reported as a **PD 2.0 contract, 5 V / 3 A**, while the battery is measured charging at **17.07 W** — more than a 5 V / 3 A source can supply.
-- The same phone and cable get **opposite PD verdicts** on the two connectors, reproducibly.
+- PD state is unstable: the partner's `supports_usb_power_delivery` is a snapshot taken at registration, while `power_operation_mode` is updated later. The same charger on the same connector read `no` before a replug and `yes` after it, and its PD object appeared about 3 s after the partner.
 - Each port advertises **invalid source PDOs** (0 mV/0 mA and 1050 mV/2560 mA).
 - Partner identity and cable (e-marker) data are always empty, and the alternate-mode table can never produce DisplayPort.
 - Connector numbering is **inverted** relative to ACPI and the kernel's own port links.
@@ -87,7 +87,7 @@ ucsi_acpi USBC000:00: Registered UCSI interface with version 1.0.0
 | Avocent USB audio | yes | host | source | `default` | correct |
 | Charger #1 (non-PD) | **no** | — | — | nothing | AC=1, battery charging |
 | Xiaomi 67 W, A→C | yes | device | **sink** | **`usb_power_delivery`, PD 2.0, 5 V/3 A** | PD impossible over A→C; 17.07 W measured |
-| Mi 11X phone, C→C | yes | host | source | `default` on one connector, `usb_power_delivery` + PD 2.0 on the other | connector-dependent |
+| Mi 11X phone, C→C | yes | host | source | `default` on one connector, `usb_power_delivery` + PD 2.0 on the other | timing-dependent (§3.2) |
 
 ### 3.1 A PD contract that cannot exist, alongside a charge it cannot explain
 
@@ -112,7 +112,7 @@ The EC's own source PSY agrees it cannot see its input: `ucsi-source-psy-USBC000
 
 **Finding:** the reported contract does not describe the actual power path. `PD` and `PPS` are fabricated; the `3 A` matches the cable's current advertisement, which is the only part that is plausible.
 
-### 3.2 The same device gets opposite PD verdicts on the two connectors
+### 3.2 PD state is a timing race, not a per-connector property
 
 Mi 11X over the same C→C cable, re-attached three times:
 
@@ -122,11 +122,36 @@ Mi 11X over the same C→C cable, re-attached three times:
 | 2 | `usb 2-1` | `port1` | `usb_power_delivery` | yes, `pd2` rev 2.0, 5 V / 1.5 A |
 | 3 | `usb 2-4` | `port0` | `default` | no, no PD object |
 
-Same phone, same cable, same laptop, freshly re-enumerated each time (verified by `usb 2-4: new high-speed USB device number N`). The verdict follows the **connector**, not the device. This is not a stale value left over from the charger test.
+Same phone, same cable, same laptop, freshly re-enumerated each time (verified
+by `usb 2-4: new high-speed USB device number N`). At the time this looked like a
+per-connector property.
 
-On the connector that claims PD, the port's own source PDO is `1050 mV / 2560 mA` — 1050 mV is not a valid PD voltage — so there is no coherent capability set from which a contract could have been made.
+It is not. In a later 1 Hz capture the Xiaomi charger was unplugged and replugged
+on the **same** connector (`port1`, `_SB.UBTC.CR02` both times):
 
-Note the asymmetry: on this connector the phone works correctly as a USB host with 5 V sourcing and **no** PD, which is also what the port's `0 mV / 0 mA` source PDO implies. The pathological direction is the sink side, where PD is invented.
+| Time | `power_operation_mode` | partner `supports_usb_power_delivery` | PD object |
+|---|---|---|---|
+| 22:05:00–22:06:46 | `usb_power_delivery` | `no` | rev 2.0, 5 V / 3 A |
+| 22:06:47 (unplug) | `default` | partner gone | gone |
+| 22:06:54 (replug) | `usb_power_delivery` | **`yes`** | not yet present |
+| 22:06:57 onward | `usb_power_delivery` | `yes` | rev 2.0, 5 V / 3 A |
+
+`supports_usb_power_delivery` is `desc.usb_pd`, set once inside
+`ucsi_register_partner()` from the EC's `PWR_OPMODE`. The port's
+`power_operation_mode` is set later by `ucsi_pwr_opmode_change()`, from a
+subsequent connector-change notification. When the EC answers `default` at
+registration and `PD` a few seconds later, the partner keeps `no` for the whole
+attach while the port reports PD and a PD object exists. That is exactly the
+state seen above and on two of the three phone attaches.
+
+**Finding:** the two PD values can disagree because they are sampled at different
+times. The phone result is timing, not a property of the connector. The fabricated
+contract on the A-to-C charger does not depend on this: the port advertises PD and
+a PD object on every attach, while the battery draws 17.07 W.
+
+Even on the attach that claimed PD, the port's own source PDO was `1050 mV / 2560 mA` — 1050 mV is not a valid PD voltage — so there was no coherent capability set from which a contract could have been made.
+
+The practical asymmetry is in the power direction: when the machine is the source (phone attached), a `default`/no-PD verdict is harmless, because the phone only needs 5 V. When the machine is the sink (charger attached), the EC invents a PD contract and a PD object.
 
 ### 3.3 Invalid source PDOs
 
@@ -136,12 +161,19 @@ port1 source-capabilities/1:fixed_supply: 1050 mV / 2560 mA
 port0/port1 sink-capabilities:           5000 mV /  100 mA
 ```
 
-Neither port exposes a usable source capability set, and both sink sets are the trivial 100 mA default. The UCSI PSYs do not describe the port either: during the charger run `voltage_now` was 0 while the battery charged at 17 W, and with a phone attached as source they report 5 V / 1.5 A while the port's own source PDO reads 0 mV / 0 mA.
+Neither port exposes a usable source capability set, and both sink sets are the trivial 100 mA default. The UCSI PSYs do not describe the port either: during the charger run `voltage_now` was 0 while the battery charged at 17 W, and with the phone attached and the port sourcing, the PSY still reported 5 V / 1.5 A while the port's own source PDO read 0 mV / 0 mA.
 
 ### 3.4 No identity, no cable, unusable alt modes
 
 - Partner `id_header`, `product`, `product_type` are always empty; `number_of_alternate_modes = 0`; no `portN-cable` object is ever created. (Identity and cable details are PD VDMs, so with no real PD there is nothing to discover — this is consistent, not a separate bug.)
-- Partner `usb_power_delivery_revision` reads `0.0` while the partner's PD object reads `2.0` — the same self-contradiction as the charger case.
+- `usb_power_delivery_revision` on the partner reads `0.0` while its PD object
+  reads `2.0`. This one is **not** a firmware finding: `ucsi_register_partner()`
+  only fills `desc.pd_revision` when `con->ucsi->version >= UCSI_VERSION_2_1`, and
+  the patched version here is 1.1. It is listed so nobody re-reports it.
+- The PSY values are derived from the EC's RDO. On the charger attach
+  `current_now = rdo_op_current(rdo)` read 3.00 A, then 3.25 A after a replug,
+  while the only PDO is 5 V / 3 A; `voltage_now` indexes the partner PDO with
+  `rdo_index(rdo)` and read 0 V. The RDO does not describe a valid contract.
 - All four connector alt-mode entries are `svid=17ef` and `svid=01ff`, `mode=1`, `vdo=0x00000001`, `active=yes`. DisplayPort's SVID is **`0xff01`**, so DP alt mode can never register from this table, regardless of the version patch.
 
 ### 3.5 Connector numbering is inverted
@@ -172,7 +204,7 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 1. Populate the UCSI VERSION field with the actual UCSI version (e.g. `0x0100`) in a BIOS update for machine type `20NK`, as the UCSI specification requires.
 2. If that is addressed, please also review the values the EC returns through UCSI on this platform, which are wrong even with a valid version:
    - PD is reported for a USB-A source where PD cannot exist, and the reported PDO does not match the measured input power.
-   - `PWR_OPMODE` / PD presence differs between the two connectors for the same phone and cable.
+   - `PWR_OPMODE` / PD presence is not stable between attaches of the same device, and `supports_usb_power_delivery` can disagree with `power_operation_mode`.
    - Source PDOs are invalid (`0 mV/0 mA`, `1050 mV/2560 mA`).
    - Connector numbering is swapped relative to the ACPI `_ADR` values.
    - Alternate-mode table cannot yield DisplayPort (`0xff01` absent).
@@ -197,6 +229,6 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 
 > ThinkPad T495, 20NK••••••, BIOS R12ET64W (1.34). The firmware exposes a UCSI device (`_HID USBC000`) with a valid register block and two Type-C connectors, but the UCSI VERSION register reads 0x0000. Linux `ucsi_acpi` rejects version 0 with `-ENODEV`, so `/sys/class/typec/` is empty. A UCSI maintainer has confirmed this as a Lenovo firmware bug on ThinkPad T14 Gen 2a (AMD) and asks customers to contact Lenovo (linux-usb, April 2026).
 >
-> For testing only, I patched the version field in RAM (volatile, one boot). The interface then binds, but the data it returns is not usable: a USB-A charger that cannot do PD is reported as a PD 2.0 5 V/3 A contract while the battery charges at a measured 17.07 W (more than 5 V/3 A can deliver); the same phone and cable get opposite PD verdicts on the two connectors; source PDOs are invalid (0 mV/0 mA and 1050 mV/2560 mA); identity and cable data are always empty; the alt-mode table cannot produce DisplayPort; connector numbering is swapped; and opmode/role are not reset on detach.
+> For testing only, I patched the version field in RAM (volatile, one boot). The interface then binds, but the data it returns is not usable: a USB-A charger that cannot do PD is reported as a PD 2.0 5 V/3 A contract while the battery charges at a measured 17.07 W (more than 5 V/3 A can deliver); PD state is unstable between attaches of the same device; source PDOs are invalid (0 mV/0 mA and 1050 mV/2560 mA); identity and cable data are always empty; the alt-mode table cannot produce DisplayPort; connector numbering is swapped; and opmode/role are not reset on detach.
 >
 > Please confirm whether a BIOS update can populate the UCSI VERSION field (e.g. 0x0100) and correct the UCSI data above, or whether this will not be fixed.

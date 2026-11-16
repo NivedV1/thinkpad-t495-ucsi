@@ -133,7 +133,7 @@ reported contract does not describe the power path. Capture:
 [`data/logs/3-xiaomi-a-to-c`](../data/logs/3-xiaomi-a-to-c),
 [`data/measurements`](../data/measurements).
 
-## T7 — same phone, two connectors, opposite PD verdicts
+## T7 — same phone, both connectors: PD state is not stable
 
 Attach a phone over a C-to-C cable, then move it to the other connector, then
 back.
@@ -151,8 +151,32 @@ Observed, three attaches, each with a fresh enumeration:
 | 2 | `2-1` | `port1` | `usb_power_delivery` | yes, 2.0, 5 V/1.5 A |
 | 3 | `2-4` | `port0` | `default` | no |
 
-The verdict tracks the connector, not the device or cable. Capture:
+The verdict tracked the connector in this run, but it is timing-dependent, not a
+connector property (see T7b). Capture:
 [`data/logs/4-phone-c-to-c`](../data/logs/4-phone-c-to-c).
+
+## T7b — replug the same charger on one connector
+
+This is the test that shows the two PD values are sampled at different times.
+
+```bash
+sudo ./scripts/40-watch.sh /tmp/t7b 180
+# start with the charger attached, unplug it, wait ~5 s, replug it
+```
+
+Observed on this machine (1 Hz, 180 s):
+
+```text
+22:05:00  port1 opmode=usb_power_delivery  partner supports_pd=no   PD object rev 2.0, 5 V/3 A
+22:06:47  port1 opmode=default             partner gone
+22:06:54  port1 opmode=usb_power_delivery  partner supports_pd=yes  PD object not yet present
+22:06:57  port1 opmode=usb_power_delivery  partner supports_pd=yes  PD object rev 2.0, 5 V/3 A
+```
+
+Both attaches landed on the same `port1`. `supports_usb_power_delivery` is
+captured once at partner registration; `power_operation_mode` follows a later
+notification, so the two can disagree for the life of the attach. Capture:
+[`data/snapshots/xiaomi-charger-typec.txt`](../data/snapshots/xiaomi-charger-typec.txt).
 
 ## T8 — PDOs, alt modes, identity, stale state
 
@@ -166,8 +190,11 @@ Check for:
 
 - `source-capabilities` of `0 mV / 0 mA` or `1050 mV / 2560 mA`
 - partner `usb_power_delivery_revision` = `0.0` while the PD object says `2.0`
+  (kernel-side only: the attribute is filled at UCSI >= 2.1)
 - empty `id_header`, `product`, `product_type`, `number_of_alternate_modes = 0`
 - no `cable` directory
+- PSY `current_now` above the last source PDO's current, or `voltage_now = 0`
+  while the PDO has a voltage — both come from the EC's RDO
 - alt modes `0x17ef` / `0x01ff` with `vdo=0x00000001`
 - after unplugging, `power_operation_mode` / `power_role` still showing the old
   value on the idle connector

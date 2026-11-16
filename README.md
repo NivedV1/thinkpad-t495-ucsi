@@ -40,7 +40,7 @@ machines — that is why this repo exists.** No fix is known.
 | 1 | The ACPI UCSI device is present and well-formed (`_HID USBC000`, `_CID PNP0CA0`, `_CRS` region `0xBD6B2000+0x1000`, `_DSM` via EC mailbox), but **VERSION reads `0x0000`**. `ucsi_register()` treats that as unusable and returns `-ENODEV`, so `/sys/class/typec/` is empty. Probe fails silently. |
 | 2 | Patching VERSION in RAM (test only) makes the driver bind and ports appear. **The data is still wrong.** |
 | 3 | A Xiaomi 67 W **USB-A** charger — where PD is physically impossible — is reported as a **PD 2.0 contract of 5 V / 3 A**, while the battery is measured charging at **17.07 W**, more than a 5 V / 3 A source can deliver. |
-| 4 | The same phone and cable get **opposite PD verdicts** on the two connectors, reproducibly: `default`/no-PD on one, `usb_power_delivery`/PD 2.0 on the other. |
+| 4 | PD state is **not stable**: the partner's `supports_usb_power_delivery` is a snapshot taken when the partner is registered, while the port's `power_operation_mode` is updated later. The same charger read `no` before a replug and `yes` after it on the **same** port, with its PD object appearing about 3 s after the partner. |
 | 5 | Ports advertise **invalid source PDOs** (`0 mV/0 mA` and `1050 mV/2560 mA`), never expose partner identity or cable e-marker data, and their alt-mode table cannot produce DisplayPort (`0xff01` is absent). |
 | 6 | UCSI **connector numbering is swapped** relative to ACPI `_ADR` and to the kernel's own `usbN-portM` links — proved from `_PLD` bytes, not inferred. |
 
@@ -105,8 +105,18 @@ were tested 1 Hz at a time:
 | Non-PD charger | **no** | — | — | AC goes online, battery charges, zero UCSI events |
 | Xiaomi 67 W **A-to-C** | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V/3 A** | PD impossible; 17.07 W measured |
 | Mi 11X **C-to-C**, connector A | yes | `default` | no | correct, but no source PD |
-| Mi 11X, connector B | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V/1.5 A** | same device, opposite answer |
-| Mi 11X, back to connector A | yes | `default` | no | verdict follows the connector |
+| Mi 11X, connector B | yes | **`usb_power_delivery`** | **yes, PD 2.0, 5 V/1.5 A** | same device, opposite answer at the time |
+| Mi 11X, back to connector A | yes | `default` | no | opposite again |
+
+The phone rows looked connector-dependent when they were taken. They are not
+stable: a later replug of the charger on one connector flipped the partner's
+`supports_usb_power_delivery` from `no` to `yes` on the **same** `port1`, with
+the PD object appearing about 3 s after the partner.
+`supports_usb_power_delivery` is set once in `ucsi_register_partner()` from the
+EC's `PWR_OPMODE`; `power_operation_mode` is updated later by
+`ucsi_pwr_opmode_change()`. A partner registered before the EC answers `PD`
+keeps `no`, so the two values can disagree for the life of the attach. See
+[`docs/pd-verdict.md`](docs/pd-verdict.md).
 
 ### 3. The 17.07 W contradiction
 
@@ -130,13 +140,26 @@ reports neither the real voltage nor a real contract.
 ### 4. Port and partner data is not usable
 
 ```text
-port0 source-capabilities/1:fixed_supply:    0 mV /    0 mA
-port1 source-capabilities/1:fixed_supply: 1050 mV / 2560 mA   <- not a valid PD voltage
-partner usb_power_delivery_revision: 0.0      while the PD object says 2.0
-id_header / product / product_type:  always empty
-portN-cable:                         never created (no e-marker is ever read)
-altmodes:                            0x17ef and 0x01ff, vdo=1, identical on all four entries
+port0 source-capabilities/1:fixed_supply:      0 mV /    0 mA
+port1 source-capabilities/1:fixed_supply:   1050 mV / 2560 mA   <- not a valid PD voltage
+partner PDO (charger, both attaches):       5000 mV / 3000 mA
+PSY current_now (from the EC's RDO):        3250 mA after replug (3000 mA before)
+                                              <- above the 3000 mA PDO
+PSY voltage_now (RDO position -> PDO):         0 mV, although the PDO is 5000 mV
+id_header / product / product_type:         always empty
+portN-cable:                                never created (no e-marker is ever read)
+altmodes:                                   0x17ef and 0x01ff, vdo=1, identical on all four entries
 ```
+
+`current_now` and `voltage_now` come straight from the EC's Request Data Object:
+`current_now = rdo_op_current(rdo)` and `voltage_now` indexes the partner's
+source PDO with `rdo_index(rdo)`. Reading 3.25 A against a 3 A PDO, and 0 V
+against a 5 V PDO, means the RDO does not describe a valid contract.
+
+The partner attribute `usb_power_delivery_revision` stays `0.0` here, but that is
+a kernel detail, not a firmware fault: `ucsi_register_partner()` only fills
+`desc.pd_revision` when the UCSI version is at least 2.1, and the patched version
+is 1.1. It is excluded from the findings for that reason.
 
 DisplayPort's SVID is `0xff01`, which never appears, so DP alt mode cannot be
 registered even with the version patched. Idle connectors also keep stale
@@ -161,8 +184,10 @@ Four attachments, same inversion every time. Details:
 | Hotplug with non-PD charger | AC online, battery charges, **no** UCSI event, no partner |
 | Hotplug with USB audio adapter | partner add/remove, `data_role` flips, ~1 s |
 | Xiaomi 67 W A-to-C charger | fabricated PD 2.0 / 5 V 3 A; **17.07 W** measured over 6 min |
-| Mi 11X C-to-C, both connectors, 3 attaches | opposite PD verdicts, deterministic per connector |
-| PD object vs partner revision | object `2.0`, partner attribute `0.0` |
+| Mi 11X C-to-C, both connectors, 3 attaches | opposite verdicts at the time; later replug shows the value is registration-time dependent |
+| Same charger, unplug/replug on one connector | `supports_pd` `no` -> `yes`; PD object ~3 s after partner; same `port1` both times |
+| PSY values derived from the EC's RDO | `current_now` 3.25 A vs 3 A PDO; `voltage_now` 0 V vs 5 V PDO |
+| PD object vs partner revision | object `2.0`, partner attribute `0.0` - kernel only fills it at UCSI >= 2.1 |
 | Source/sink PDO readout | invalid source PDOs on both ports; sink PDOs 5 V/100 mA |
 | Alt-mode enumeration | `0x17ef`, `0x01ff` only; no `0xff01` |
 | Detach behaviour | stale opmode/role retained on the idle connector |
@@ -242,9 +267,10 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 
 ## What we still do not know
 
-- **Whether either connector genuinely negotiates PD.** The verdict differs per
-  connector, and the port's own PDOs are invalid, so it could be arbitrary EC
-  reporting. An inline USB-C meter would settle it.
+- **Whether this connector genuinely negotiates PD.** The verdict changes between
+  attaches even on one connector, and the port's own PDOs and the RDO are invalid,
+  so the reported contract may be entirely fabricated. An inline USB-C meter
+  would settle it.
 - **The actual VBUS voltage** during the 17.07 W charge. No Linux interface
   exposes it: `AC` has only `online`, and the UCSI PSYs report either 0 or a
   value that does not match the port's own PDOs.
@@ -269,6 +295,7 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 | `data/measurements/` | 72-sample battery trace and the least-squares fit |
 | `data/snapshots/` | recorded sysfs state for the charger and both phone attaches |
 | `docs/tests.md` | how to reproduce each test |
+| `docs/pd-verdict.md` | why `supports_usb_power_delivery` and `power_operation_mode` can disagree |
 | `docs/safety.md` | what the RAM write does and does not do |
 
 The machine serial is masked in this repository and device serial numbers were
