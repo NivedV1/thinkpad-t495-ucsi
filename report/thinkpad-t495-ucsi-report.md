@@ -1,8 +1,8 @@
-# ThinkPad T495 (20NK) — firmware reports UCSI VERSION 0x0000 and returns one PDO per GET_PDOS request
+# ThinkPad T495 (20NK) — firmware reports UCSI VERSION 0x0000 and truncates a four-PDO GET_PDOS request to one PDO
 
 **Machine:** 20NKS29V00 · BIOS `R12ET64W (1.34)`, 2024-02-23
 
-**Subject:** The UCSI VERSION register reads `0x0000`, so Linux `ucsi_acpi` refuses to bind (`-ENODEV`) and no Type-C ports exist. The same firmware works under Windows, which accepts version 0.0.0 and completes every UCSI command. Once Linux is forced past the version check, a second defect appears: `GET_PDOS` ignores the requested PDO count and returns exactly one PDO, so Linux sees only the first entry of a four-entry source capability list. That single short read produces the 0 V / 5 V / 3.25 A values that make the port look impossible; it is not a negotiated contract. Two further defects are visible on both operating systems: the local source PDOs are invalid, and connector 1 keeps reporting the same change bits.
+**Subject:** The UCSI VERSION register reads `0x0000`, so Linux `ucsi_acpi` refuses to bind (`-ENODEV`) and no Type-C ports exist. The same firmware works under Windows, which accepts version 0.0.0 and completes every UCSI command. Once Linux is forced past the version check, a second defect appears: `GET_PDOS` returns exactly one PDO for a four-PDO request, so Linux sees only the first entry of a four-entry source capability list. That single short read produces the 0 V / 5 V / 3.25 A values that make the port look impossible; it is not a negotiated contract. Two further defects are visible on both operating systems: the local source PDOs are invalid, and connector 1 keeps reporting the same change bits.
 
 **Raw captures and reproduction scripts:** https://github.com/NivedV1/thinkpad-t495-ucsi
 
@@ -16,7 +16,7 @@ This is the same defect reported for ThinkPad T14 Gen 2a (AMD) on linux-usb in A
 
 Forcing the version in Linux (RAM-only test) reveals the second defect:
 
-- **`GET_PDOS` always returns one PDO.** A request for four PDOs returns `CCI DataLength: 4` and one DWORD; offsets 0–3 read individually return the full four-entry list. Windows sees 5 V, 9 V, 15 V and 20 V; Linux sees only 5 V / 3 A.
+- **A four-PDO `GET_PDOS` request returns one PDO.** It returns `CCI DataLength: 4` and one DWORD; offsets 0–3 read individually return the full four-entry list. Windows sees 5 V, 9 V, 15 V and 20 V; Linux sees only 5 V / 3 A.
 - `ucsi_get_pdos()` treats that one-PDO reply as the whole list (`num_pdos = 1`) and never asks for offsets 1–3. `voltage_now`, `voltage_max` and `current_max` are then computed from the truncated list, which is why Linux reports `0 V`, `5000 mV` and `3000 mA` while `current_now` comes from the RDO and reads `3250 mA`.
 - The **RDO is correct**: `0x43051545` selects object position 4 (20 V) at 3.25 A = 65 W, matching the attached adapter's own PDO 4. The battery draws ~17 W, well within that contract.
 - Both ports report **invalid local source PDOs** — `0 mV / 0 mA` on connector 1 and `1050 mV / 2560 mA` on connector 2 — in Linux and Windows alike. This is a separate firmware defect.
@@ -93,7 +93,7 @@ Every `GET_CAPABILITY`, `GET_CONNECTOR_CAPABILITY`, `GET_CONNECTOR_STATUS` and `
 
 So the zero version does not prevent the platform's own UCSI client from operating. It is rejected only by Linux's `version == 0` check. A DMI quirk in `ucsi_acpi` would let the driver bind; that file already contains one per-model quirk (LG Gram, selecting an alternate ops table), though nothing that touches the version check. The defects in §3 and §6–§8 would remain.
 
-## 3. GET_PDOS returns one PDO per request
+## 3. GET_PDOS returns one PDO for a four-PDO request
 
 Batch request on Windows, connector 1, partner source PDOs:
 
@@ -122,7 +122,7 @@ Reading each offset separately returns the full list:
 | 3 | 4 | `0x0006414F` | 20 V / 3.35 A (67 W Xiaomi) |
 | 4 | 0 | — | no further PDOs |
 
-The ThinkPad 65 W adapter returns the same four voltages with PDO 4 = `0x00164145` (20 V / 3.25 A), on both connectors. A request for one, three or four PDOs always returns exactly one; the requested count is ignored. `CCI DataLength` is the only reliable indicator of how many PDOs arrived.
+The ThinkPad 65 W adapter returns the same four voltages with PDO 4 = `0x00164145` (20 V / 3.25 A), on both connectors. `NumberOfPdos` is zero-based, so `3` requests four; one arrives. Every batch read with data to return ended at `DataLength: 4` (the partner sink-PDO list is genuinely empty, `DataLength: 0`); other counts were not requested. `CCI DataLength` is the only reliable indicator of how many PDOs arrived.
 
 The Linux driver's single read returns the same first DWORD, byte for byte (`0x0A11912C` for the ThinkPad, `0x0A01912C` for the Xiaomi), so the transport and the first PDO are consistent across operating systems.
 
@@ -326,7 +326,7 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 >
 > The same firmware runs under Windows: `UcmUcsiAcpiClient` binds, PnP status is OK, and every UCSI command succeeds while both the PPM and the client driver report version 0.0.0. So the zero version blocks Linux only.
 >
-> With the version field patched in RAM for testing, Linux binds but misreports the power data: `GET_PDOS` ignores the requested PDO count and returns exactly one PDO (`DataLength: 4`). Windows reads offsets 0–3 individually and gets four PDOs (5 V, 9 V, 15 V, 20 V); Linux reads once, sees only 5 V / 3 A, and computes 0 V / 3.25 A from the truncated list. The Request Data Object `0x43051545` is correct — position 4, 20 V at 3.25 A = 65 W — and the battery draws ~17 W, well within it.
+> With the version field patched in RAM for testing, Linux binds but misreports the power data: `GET_PDOS` returns exactly one PDO for a four-PDO request (`DataLength: 4`). Windows reads offsets 0–3 individually and gets four PDOs (5 V, 9 V, 15 V, 20 V); Linux reads once, sees only 5 V / 3 A, and computes 0 V / 3.25 A from the truncated list. The Request Data Object `0x43051545` is correct — position 4, 20 V at 3.25 A = 65 W — and the battery draws ~17 W, well within it.
 >
 > Two further defects appear on both operating systems: the local source PDOs are invalid (connector 1: 0 V / 0 A, connector 2: 1.05 V / 2.56 A), and connector 1 keeps returning `ConnectChange` / `NegotiatedPowerLevelChange` (status-change bits 0x4040).
 >

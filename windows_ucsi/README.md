@@ -158,8 +158,8 @@ MESSAGE_IN: 2c 91 01 0a
 ```
 
 The second capture asked each offset separately and received the whole list.
-So the firmware ignores the requested count; `DataLength` is the only reliable
-indicator of how many PDOs arrived. This matters beyond Windows: Linux's UCSI
+So the four-PDO request was not honoured; `DataLength` is the only reliable
+indicator of how many PDOs arrived. Other request counts were not tested. This matters beyond Windows: Linux's UCSI
 driver asks for four, receives one, and therefore records a one-entry capability
 list. See the top-level README §2–§3.
 

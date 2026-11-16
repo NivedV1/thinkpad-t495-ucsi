@@ -1,4 +1,4 @@
-# ThinkPad T495 / T14 Gen 2a (AMD): UCSI reports VERSION `0x0000` and returns one PDO per request
+# ThinkPad T495 / T14 Gen 2a (AMD): UCSI reports VERSION `0x0000` and truncates `GET_PDOS` to one PDO
 
 Windows-side captures and reproduction instructions are available in
 [windows_ucsi](windows_ucsi/README.md), including both USB-C connectors with
@@ -46,7 +46,7 @@ workaround is plausible and described below.
 |---|---|
 | 1 | The ACPI UCSI device is present and well-formed (`_HID USBC000`, `_CID PNP0CA0`, `_CRS` region `0xBD6B2000+0x1000`, `_DSM` via EC mailbox), but **VERSION reads `0x0000`**. `ucsi_register()` treats that as unusable and returns `-ENODEV`, so `/sys/class/typec/` is empty. Probe fails silently. |
 | 2 | **Windows runs the same firmware.** `UcmUcsiAcpiClient` binds to `ACPI\USBC000\0`, PnP status is OK, and every UCSI command completes while the PPM and client driver both report version `0.0.0`. The zero version is a Linux-side gate, not a dead device. |
-| 3 | **`GET_PDOS` ignores the requested PDO count and always returns exactly one PDO** (`CCI DataLength: 4`). Asking for three or four returns one. Reading offsets 0, 1, 2, 3 individually returns four real PDOs. |
+| 3 | **`GET_PDOS` returns exactly one PDO for a four-PDO request** (`NumberOfPdos: 3`, zero-based, `CCI DataLength: 4`). Reading offsets 0, 1, 2, 3 individually returns four real PDOs, so the list exists and only the batch read is short. (Only the four-PDO request was tested.) |
 | 4 | Linux reads the batch once. In v6.19 `ucsi_get_pdos()` computes `num_pdos = ret / 4 = 1`, sees `1 < UCSI_MAX_PDOS`, returns immediately, and never asks for offsets 1–3. `src_pdos[1..3]` stay zero. |
 | 5 | That one missing read produces every "impossible" number: `voltage_now = src_pdos[rdo_index-1] = src_pdos[3] = 0`, `voltage_max = src_pdos[num_pdos-1] = PDO 1 = 5 V`, `current_max = PDO 1 = 3 A`, `current_now = RDO = 3.25 A`. The "5 V / 3 A contract" was the truncated list, not a negotiation. |
 | 6 | The RDO is correct: `0x43051545` selects position 4 (20 V) at 3.25 A = **65 W**, matching the attached adapter's own PDO 4 on both operating systems. |
@@ -119,7 +119,7 @@ per-model quirk (LG Gram, selecting an alternate ops table), but nothing that
 touches the version check. What such a quirk would expose is the subject of §2
 and §3.
 
-### 2. `GET_PDOS` returns one PDO, whatever the request asks for
+### 2. `GET_PDOS` truncates a four-PDO request to one PDO
 
 Windows, connector 1, partner source PDOs, batch request:
 
@@ -149,10 +149,12 @@ The same request offset by offset returns the whole list:
 | 4 | 0 | — | no more PDOs |
 
 The ThinkPad 65 W adapter returns the same four voltages, with PDO 4 =
-`0x00164145` (20 V / 3.25 A), on both connectors. The firmware ignores the
-count field in *every* `GET_PDOS`: ask for one, three or four and exactly one
-comes back. `CCI DataLength` — not the request — is the only honest indicator
-of how many PDOs actually arrived.
+`0x00164145` (20 V / 3.25 A), on both connectors. The firmware does not honour
+the four-PDO request: one comes back. Batch reads that have data to return all
+ended with `DataLength: 4`; the only zero-length reply was the partner's
+sink-PDO list, which genuinely is empty. Other request counts were not tested.
+`CCI DataLength` — not the request — is the only honest indicator of how many
+PDOs actually arrived.
 
 ### 3. What the truncated reply does to Linux
 

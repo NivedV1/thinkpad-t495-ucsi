@@ -102,7 +102,7 @@ connector. Capture: [`data/logs/2-charger-nonpd`](../data/logs/2-charger-nonpd)
 (in that run an unrelated audio adapter was on the other connector, hence
 `port0 ... partner=yes`).
 
-## T6 — `GET_PDOS` returns one PDO per request
+## T6 — `GET_PDOS` returns one PDO for a four-PDO request
 
 This is the decisive test for the second defect. Attach any PD source (the
 machine's own 65 W adapter is ideal), bind the interface, and read a single

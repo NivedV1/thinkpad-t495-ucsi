@@ -72,8 +72,8 @@ Xiaomi 67 W Type-A charger on its own A-to-C cable, same `port1` both times,
 | 22:06:54 (replug) | `usb_power_delivery` | **`yes`** | not yet present |
 | 22:06:57 onward | `usb_power_delivery` | `yes` | rev 2.0, first PDO 5 V / 3 A |
 
-"First PDO" is literal: this firmware returns one PDO per `GET_PDOS`
-regardless of the requested count, and Linux only ever asks once. The charger
+"First PDO" is literal: this firmware returned one PDO per `GET_PDOS` in
+every capture, including the four-PDO request, and Linux only ever asks once. The charger
 really offers four profiles; see the main README §2–§3.
 
 The charger and cable did not change. The connector did not change. The value
