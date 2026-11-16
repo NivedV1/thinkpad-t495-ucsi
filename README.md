@@ -13,8 +13,10 @@ their machines.
 **Status:** confirmed on one ThinkPad T495 (`20NKS29V00`, BIOS `R12ET64W 1.34`,
 Fedora 44, kernel `6.19.10`). The same VERSION defect is already confirmed by the
 UCSI maintainer on a ThinkPad T14 Gen 2a (AMD). **Not yet confirmed on other
-machines — that is why this repo exists.** No fixed BIOS is known; a Linux-side
-workaround is plausible and described below.
+machines — that is why this repo exists.** No fixed BIOS is known. Lenovo lists
+BIOS `1.36` (`R12ET66W`, June 2026) as current for this model; its release notes
+mention only certificate updates and a no-rollback note, not UCSI, and it has not
+been tested here. A Linux-side workaround is plausible and described below.
 
 - Support report: [`report/thinkpad-t495-ucsi-report.md`](report/thinkpad-t495-ucsi-report.md)
 - Raw captures: [`data/`](data/) and [`windows_ucsi/`](windows_ucsi/README.md)
@@ -592,7 +594,9 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 - **Which physical connector is which.** The UCSI numbering is cross-checked
   between OSes, but front/rear/left/right labelling was never recorded.
 - **Whether a later BIOS fixes either defect.** This machine is on `R12ET64W
-  (1.34)`, 2024-02-23.
+  (1.34)`, 2024-02-23. Lenovo lists `1.36` (`R12ET66W`, June 2026); the
+  published changelog covers certificate updates and warns that 1.36 cannot be
+  rolled back, but does not mention UCSI. Untested here.
 
 ## Data in this repo
 

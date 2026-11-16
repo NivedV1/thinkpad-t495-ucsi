@@ -33,6 +33,7 @@ USB data and 5 V charging work, because the EC handles those independently of UC
 |---|---|
 | Model | Lenovo ThinkPad T495, `20NKS29V00` |
 | BIOS | `R12ET64W (1.34)`, 2024-02-23 |
+| Latest BIOS listed by Lenovo | `1.36` (`R12ET66W`), package `R12UJ66W`, June 2026 — release notes do not mention UCSI; not tested here |
 | CPU | AMD Ryzen 5 PRO 3500U (Picasso) |
 | OS (Linux) | Fedora 44, kernel `6.19.10-300.fc44.x86_64` |
 | OS (Windows) | Windows 11 Pro, build 26300 |
@@ -295,7 +296,9 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 
 ## 12. Request to Lenovo
 
-1. Populate the UCSI VERSION field with the actual UCSI version (e.g. `0x0100`) in a BIOS update for machine type `20NK`, as the UCSI specification requires.
+Lenovo lists BIOS `1.36` (`R12ET66W`, package `R12UJ66W`, June 2026) as current for this model. Its published release notes mention certificate updates and state that 1.36 cannot be rolled back, but do not mention UCSI or USB-C; this machine remains on 1.34 for these captures.
+
+1. Confirm whether 1.36 changes any of the behaviour below. If not, populate the UCSI VERSION field with the actual UCSI version (e.g. `0x0100`) in a further BIOS update for machine type `20NK`, as the UCSI specification requires.
 2. Fix `GET_PDOS`: the command must return the number of PDOs requested in `NumberOfPdos` (or at least as many as the response buffer allows), not exactly one. On this firmware a four-PDO request returns `DataLength: 4`, while offsets 0–3 individually prove four PDOs exist.
 3. Fix the invalid local source PDOs: connector 1 reports a fixed supply of `0 mV / 0 mA` (`0x15000000`), connector 2 reports `1050 mV / 2560 mA` (`0x15005500`). The same values are returned by Windows.
 4. Review the connector-status change bits: connector 1 returned `0x4040` (`ConnectChange`, `NegotiatedPowerLevelChange`) on every read in these captures; connector 2 returned `0x0000`.
@@ -330,4 +333,4 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 >
 > Two further defects appear on both operating systems: the local source PDOs are invalid (connector 1: 0 V / 0 A, connector 2: 1.05 V / 2.56 A), and connector 1 keeps returning `ConnectChange` / `NegotiatedPowerLevelChange` (status-change bits 0x4040).
 >
-> Please populate the UCSI VERSION field (e.g. 0x0100) and fix `GET_PDOS` to honour the requested PDO count, plus the local source PDOs and the stuck change bits. If this will not be fixed, please confirm.
+> Lenovo's latest listed BIOS is 1.36 (R12ET66W, June 2026); its release notes do not mention UCSI. Please confirm whether it changes this behaviour. If not, populate the UCSI VERSION field (e.g. 0x0100) and fix `GET_PDOS` to honour the requested PDO count, plus the local source PDOs and the stuck change bits. If this will not be fixed, please confirm.
