@@ -1,6 +1,6 @@
 # ThinkPad T495 (20NK) — firmware reports UCSI VERSION 0x0000; with that bypassed, the UCSI data itself is wrong
 
-**Machine:** 20NK•••••• · BIOS `R12ET64W (1.34)`, 2024-02-23
+**Machine:** 20NKS29V00 · BIOS `R12ET64W (1.34)`, 2024-02-23
 
 **Subject:** The UCSI VERSION register reads `0x0000`, so Linux `ucsi_acpi` refuses to bind (`-ENODEV`) and no Type-C ports exist. Forcing the version field to a valid value makes the interface bind, and the port/partner data it then exposes is internally inconsistent: the machine's own 65 W adapter is described by a 5 V/3 A PD contract while delivering over 17 W, the same adapter flips between "PD" and "no PD" depending on how it was attached, source PDOs are invalid, there is no identity or cable data, and connector numbering is swapped.
 
@@ -27,7 +27,7 @@ USB data and 5 V charging work, because the EC handles those independently of UC
 
 | Item | Value |
 |---|---|
-| Model | Lenovo ThinkPad T495, `20NK••••••` |
+| Model | Lenovo ThinkPad T495, `20NKS29V00` |
 | BIOS | `R12ET64W (1.34)`, 2024-02-23 |
 | CPU | AMD Ryzen 5 PRO 3500U (Picasso) |
 | OS | Fedora 44, kernel `6.19.10-300.fc44.x86_64` |
@@ -259,7 +259,7 @@ Writing `0x0100` into the version field made the driver bind there too, and USB-
 
 ## Short version (support web form)
 
-> ThinkPad T495, 20NK••••••, BIOS R12ET64W (1.34). The firmware exposes a UCSI device (`_HID USBC000`) with a valid register block and two Type-C connectors, but the UCSI VERSION register reads 0x0000. Linux `ucsi_acpi` rejects version 0 with `-ENODEV`, so `/sys/class/typec/` is empty. A UCSI maintainer has confirmed this as a Lenovo firmware bug on ThinkPad T14 Gen 2a (AMD) and asks customers to contact Lenovo (linux-usb, April 2026).
+> ThinkPad T495, 20NKS29V00, BIOS R12ET64W (1.34). The firmware exposes a UCSI device (`_HID USBC000`) with a valid register block and two Type-C connectors, but the UCSI VERSION register reads 0x0000. Linux `ucsi_acpi` rejects version 0 with `-ENODEV`, so `/sys/class/typec/` is empty. A UCSI maintainer has confirmed this as a Lenovo firmware bug on ThinkPad T14 Gen 2a (AMD) and asks customers to contact Lenovo (linux-usb, April 2026).
 >
 > For testing only, I patched the version field in RAM (volatile, one boot). The interface then binds, but the data it returns is not usable: with the machine's own 65 W (20 V/3.25 A) adapter attached, UCSI reports a single PD 2.0 source capability of 5 V/3 A while the battery charges at a measured 17.37 W (more than 5 V/3 A can deliver), and the same adapter exposes no PD object at all in one connector orientation but does in the other; a USB-A charger that cannot do PD is reported as the same 5 V/3 A contract; source PDOs are invalid (0 mV/0 mA and 1050 mV/2560 mA); identity and cable data are always empty; the alt-mode table cannot produce DisplayPort; connector numbering is swapped; and opmode/role are not reset on detach.
 >

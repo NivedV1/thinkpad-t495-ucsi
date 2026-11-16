@@ -1,5 +1,5 @@
 # snapshot 2026-11-16T21:51:14+05:30
-# host: 20NK•••••• ThinkPad T495
+# host: 20NKS29V00 ThinkPad T495
 # bios: R12ET64W(1.34 )
 # kernel: 6.19.10-300.fc44.x86_64
 

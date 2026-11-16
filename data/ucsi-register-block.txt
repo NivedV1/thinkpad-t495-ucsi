@@ -1,4 +1,4 @@
-UCSI ACPI register block, ThinkPad T495 20NK••••••, BIOS R12ET64W (1.34)
+UCSI ACPI register block, ThinkPad T495 20NKS29V00, BIOS R12ET64W (1.34)
 Region: _CRS Memory32Fixed 0xBD6B2000, length 0x1000; EC-backed via _DSM (ECWR/ECRD)
 Read with an out-of-tree module (ioremap_cache, 4-byte aligned); /dev/mem is blocked on this kernel.
 Dump length 0x30 (VERSION, CCI, CONTROL, MESSAGE IN, MESSAGE OUT).

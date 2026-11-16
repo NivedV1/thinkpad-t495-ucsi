@@ -1,6 +1,6 @@
 # Attachment test matrix
 
-All rows: T495 20NK••••••, BIOS 1.34, kernel 6.19.10-300.fc44.x86_64, VERSION
+All rows: T495 20NKS29V00, BIOS 1.34, kernel 6.19.10-300.fc44.x86_64, VERSION
 patched to 0x0110 in RAM (one boot only). "UCSI says" is verbatim from
 `/sys/class/typec/`.
 

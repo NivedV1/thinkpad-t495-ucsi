@@ -9,7 +9,7 @@ Diagnostic project for a Lenovo firmware defect that leaves USB-C unusable under
 Linux, plus the evidence needed to report it and a request for other owners to
 confirm it on their machines.
 
-**Status:** confirmed on one ThinkPad T495 (`20NK••••••`, BIOS `R12ET64W 1.34`,
+**Status:** confirmed on one ThinkPad T495 (`20NKS29V00`, BIOS `R12ET64W 1.34`,
 Fedora 44, kernel `6.19.10`). The same VERSION defect is already confirmed by the
 UCSI maintainer on a ThinkPad T14 Gen 2a (AMD). **Not yet confirmed on other
 machines — that is why this repo exists.** No fix is known.

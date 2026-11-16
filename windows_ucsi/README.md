@@ -37,12 +37,12 @@ The user had observed Lenovo Vantage displaying 67 W for a Xiaomi 67 W adapter a
 - `scripts/Read-Ucsi.ps1`: reproduction copy, adjusted only for archive paths, unique output filenames, and accurate section labels. Not run against hardware in this archive-creation step.
 - `scripts/Decode-Capture.ps1`: offline extraction and decoding of fixed partner-source PDOs and RDOs.
 - `analysis/decoded.json`: machine-readable decoded capture.
-- `tools/UCSIControl.exe`: x64 tool extracted from Microsoft's MUTT package.
-- `tools/MUTTPackage.msi`: original downloaded package, retained for provenance.
+- `tools/README.md`: where `UCSIControl.exe` comes from, the exact download URL, the MSI SHA-256 and how to extract it. The Microsoft binaries are deliberately **not** redistributed here.
 - `tools/signature-check.txt`, `tools/version.txt`: tool metadata and local signature-check results.
 - `SHA256SUMS.csv`: integrity hashes of archive files except the manifest itself.
 
-Raw transcripts contain the local computer/user name and filesystem paths. Preserve originals for research; redact a separate copy if publishing.
+Raw transcripts contain the local computer/user name and filesystem paths. They
+are published unredacted, exactly as captured.
 
 ## System and interface
 
@@ -128,7 +128,7 @@ The local source DWORDs decode to implausible fixed-supply fields (connector 1: 
 
 1. Read system model, Windows build, PnP device status/properties, UCSI event provider, battery WMI data, and Lenovo service/driver presence with PowerShell. These preliminary console results were not saved verbatim at the time; the summary here distinguishes them from retained raw UCSI transcripts.
 2. Confirmed that `TestInterfaceEnabled` was absent and the initial shell was not elevated. Ordinary registry modification failed with `Requested registry access is not allowed`.
-3. Followed Microsoft's UCSI documentation to locate UCSIControl in MUTT. Downloaded `MUTTPackage-3_0_2.msi` directly from Microsoft.
+3. Followed Microsoft's UCSI documentation to locate UCSIControl in MUTT. Downloaded `MUTTPackage-3_0_2.msi` directly from Microsoft. The package is not committed here; [`tools/README.md`](tools/README.md) keeps its download URL, SHA-256 and extraction steps.
 4. A combined download/Windows Installer extraction command was blocked by automatic approval review with no specific explanation. Download alone succeeded. Used installed 7-Zip to extract the MSI as an archive, without running its installer or installing MUTT drivers. Copied archive member `x64_ucsicontrol` to `UCSIControl.exe`.
 5. Local Authenticode validation of the MSI reported `UnknownError`: its certificate chain ended at an untrusted root. The reported signer was Microsoft Windows / Microsoft Corporation. The extracted executable reported `NotSigned`. The package was retrieved via Microsoft's HTTPS download URL; these signature results are recorded, not represented as successful cryptographic publisher validation.
 6. Invoked a PowerShell helper using `Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden`. The elevated process succeeded. No system reboot was performed.
@@ -155,18 +155,21 @@ For offset `n`, add `(n << 24)` to the low DWORD. Connector number occupies bits
 
 ## Reproduction
 
-From an **administrator PowerShell** window:
+From an **administrator PowerShell** window, in the `windows_ucsi` folder:
 
 ```powershell
-& 'C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\scripts\Read-Ucsi.ps1'
+cd <path-to>\windows_ucsi
+.\scripts\Read-Ucsi.ps1
 ```
+
+`Read-Ucsi.ps1` expects the Microsoft tool at `..\tools\UCSIControl.exe`. Extract it first — see [`tools/README.md`](tools/README.md) for the download link and the MSI hash.
 
 The reproduction script expects this laptop's device instance and exactly two connectors. It writes a new timestamped transcript under `captures` and restores the prior registry state. It briefly restarts UCSI before and after collection, which may interrupt USB-C operation. The original capture script is retained separately for fidelity; it expected the executable beside it and overwrote `ucsi-results.txt`.
 
 To decode an existing capture without accessing hardware:
 
 ```powershell
-& 'C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\scripts\Decode-Capture.ps1'
+.\scripts\Decode-Capture.ps1
 ```
 
 The capture helper does not enforce a per-command timeout, and native command failures may be recorded without stopping subsequent queries. Review CCI, error fields, transcript completion and cleanup before interpreting a rerun. An interrupted process can prevent `finally` cleanup; inspect the registry and device state in that case. Do not treat a script-level zero exit code alone as proof of valid measurements.

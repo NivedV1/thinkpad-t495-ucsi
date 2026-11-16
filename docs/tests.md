@@ -1,6 +1,6 @@
 # Tests and how to reproduce each one
 
-Everything below was run on a ThinkPad T495 `20NK••••••`, BIOS `R12ET64W (1.34)`,
+Everything below was run on a ThinkPad T495 `20NKS29V00`, BIOS `R12ET64W (1.34)`,
 Fedora 44, kernel `6.19.10-300.fc44.x86_64`, Secure Boot off, lockdown `none`.
 Times in `data/logs/*/state.log` are local wall clock (IST, UTC+5:30); kernel
 timestamps are seconds since boot.
