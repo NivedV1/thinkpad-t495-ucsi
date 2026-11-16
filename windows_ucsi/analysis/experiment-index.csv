@@ -1,0 +1,8 @@
+Experiment,Charger,Cable,IdentificationSource,ActiveUcsiConnector,RawCapture,Status
+1,Xiaomi 67 W,USB-A at charger to USB-C at laptop,User clarification after captures,1,captures/ucsi-results.txt,Completed
+2,Xiaomi 67 W,USB-A at charger to USB-C at laptop,User clarification after captures,2,captures/ucsi-20261117-001917-772.txt,Completed
+3,Original ThinkPad charger,Cable details not independently recorded,User identification from conversation context,1,captures/ucsi-20261117-002226-762.txt,Completed
+4,Original ThinkPad charger,Cable details not independently recorded,User identification from conversation context,2,captures/ucsi-20261117-002526-430.txt,Completed
+5,USB-C headphones (AB17X USB Audio),User reports Type-C connection,User description and Windows PnP enumeration,1,captures/ucsi-20261117-002805-210.txt,Completed
+6,Phone (Android ADB Interface),USB-C-to-USB-C user-reported,User description and Windows PnP enumeration,1,captures/ucsi-20261117-003218-034.txt,Completed
+7,Phone setup recheck,USB-C-to-USB-C from preceding user context,Continuity of user task and UCSI connection status,2,captures/ucsi-20261117-003625-791.txt,Completed

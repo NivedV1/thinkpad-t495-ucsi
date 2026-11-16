@@ -1,0 +1,38 @@
+2026-11-17T00:29:38.4474336+05:30
+
+Status       : OK
+Class        : AudioEndpoint
+FriendlyName : Headset Microphone (AB17X USB Audio)
+InstanceId   : SWD\MMDEVAPI\{0.0.1.00000000}.{6A954B52-DEF8-462C-8610-39B8911B3095}
+
+Status       : OK
+Class        : MEDIA
+FriendlyName : AB17X USB Audio
+InstanceId   : USB\VID_0624&PID_3D3F&MI_00\7&24BE6AB6&0&0000
+
+Status       : OK
+Class        : AudioEndpoint
+FriendlyName : Headset Earphone (AB17X USB Audio)
+InstanceId   : SWD\MMDEVAPI\{0.0.0.00000000}.{B8B9277C-115B-4066-BAD8-499B84E07508}
+
+
+KeyName : DEVPKEY_Device_Service
+Data    : usbaudio
+
+KeyName : DEVPKEY_Device_Parent
+Data    : USB\VID_0624&PID_3D3F\20210726905926
+
+KeyName : DEVPKEY_Device_BusReportedDeviceDesc
+Data    : AB17X USB Audio
+
+KeyName : DEVPKEY_Device_DriverVersion
+Data    : 10.0.26100.9457
+
+KeyName : DEVPKEY_Device_DriverProvider
+Data    : Microsoft
+
+
+Status     : OK
+InstanceId : ACPI\USBC000\0
+
+TestInterfaceEnabled present: False

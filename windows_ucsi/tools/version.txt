@@ -1,0 +1,6 @@
+
+FileVersion      : 10.0.26572.1000 (WinBuild.160101.0800)
+ProductVersion   : 10.0.26572.1000
+CompanyName      : Microsoft Corporation
+OriginalFilename : UcsiControl.exe
+

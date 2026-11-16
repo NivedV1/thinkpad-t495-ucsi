@@ -1,0 +1,67 @@
+{
+  "SourceFile": "ucsi-20261117-002226-762.txt",
+  "SourceSha256": "4478EF9FDDB7152D26D246A656738CA9452EF1C034EA5DF69364EFA1E59A054D",
+  "Note": "Sequential firmware snapshots; fixed partner-source PDO decoding only; requested power is not measured draw.",
+  "PartnerSourcePdos": [
+    {
+      "Connector": 1,
+      "Position": 1,
+      "RawHex": "0x0A11912C",
+      "RawBytes": "2c 91 11 0a",
+      "Type": 0,
+      "FixedVolts": 5.0,
+      "FixedMaxAmps": 3.0,
+      "FixedMaxWatts": 15.0
+    },
+    {
+      "Connector": 1,
+      "Position": 2,
+      "RawHex": "0x0012D12C",
+      "RawBytes": "2c d1 12 00",
+      "Type": 0,
+      "FixedVolts": 9.0,
+      "FixedMaxAmps": 3.0,
+      "FixedMaxWatts": 27.0
+    },
+    {
+      "Connector": 1,
+      "Position": 3,
+      "RawHex": "0x0014B12C",
+      "RawBytes": "2c b1 14 00",
+      "Type": 0,
+      "FixedVolts": 15.0,
+      "FixedMaxAmps": 3.0,
+      "FixedMaxWatts": 45.0
+    },
+    {
+      "Connector": 1,
+      "Position": 4,
+      "RawHex": "0x00164145",
+      "RawBytes": "45 41 16 00",
+      "Type": 0,
+      "FixedVolts": 20.0,
+      "FixedMaxAmps": 3.25,
+      "FixedMaxWatts": 65.0
+    }
+  ],
+  "ConnectorStatus": [
+    {
+      "Connector": 1,
+      "Connected": 1,
+      "RdoHex": "0x43051545",
+      "SelectedPosition": 4,
+      "OperatingAmps": 3.25,
+      "MaximumOperatingAmps": 3.25,
+      "RequestedWatts": 65.0
+    },
+    {
+      "Connector": 2,
+      "Connected": 0,
+      "RdoHex": "0x00000000",
+      "SelectedPosition": 0,
+      "OperatingAmps": null,
+      "MaximumOperatingAmps": null,
+      "RequestedWatts": null
+    }
+  ]
+}

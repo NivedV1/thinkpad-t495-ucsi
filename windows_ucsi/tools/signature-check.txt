@@ -1,0 +1,28 @@
+
+Path              : C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\tools\MUTTPackage.msi
+Status            : UnknownError
+StatusMessage     : A certificate chain processed, but terminated in a root certificate which is not trusted by the trust provider.
+SignerCertificate : [Subject]
+                      CN=Microsoft Windows, O=Microsoft Corporation, L=Redmond, S=Washington, C=US
+                    
+                    [Issuer]
+                      CN=Microsoft Testing PCA 2010, O=Microsoft Corporation, L=Redmond, S=Washington, C=US
+                    
+                    [Serial Number]
+                      3300000807E88CA0D8F2991CA6000100000807
+                    
+                    [Not Before]
+                      2/13/2026 1:58:09 AM
+                    
+                    [Not After]
+                      5/13/2027 1:58:09 AM
+                    
+                    [Thumbprint]
+                      F123B4B99B739EFF117D878ED47AE351B2D0504A
+                    
+
+Path              : C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\tools\UCSIControl.exe
+Status            : NotSigned
+StatusMessage     : The file C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\tools\UCSIControl.exe is not digitally signed. You cannot run this script on the current system. For more information about running scripts and setting execution policy, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170
+SignerCertificate : 
+

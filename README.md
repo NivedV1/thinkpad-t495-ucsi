@@ -1,5 +1,10 @@
 # ThinkPad T495 / T14 Gen 2a (AMD): UCSI reports VERSION `0x0000`, and the data behind it is wrong
 
+Windows-side captures and reproduction instructions are available in
+[windows_ucsi](windows_ucsi/README.md), including both USB-C connectors with
+Xiaomi and original ThinkPad chargers, USB audio, and phone connection tests.
+The archive preserves raw firmware responses, decoding limitations, and hashes.
+
 Diagnostic project for a Lenovo firmware defect that leaves USB-C unusable under
 Linux, plus the evidence needed to report it and a request for other owners to
 confirm it on their machines.

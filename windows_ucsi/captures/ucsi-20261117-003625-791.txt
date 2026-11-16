@@ -1,0 +1,3010 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20261117003625
+Username: NIVED\NIVED
+RunAs User: NIVED\NIVED
+Configuration Name: 
+Machine: NIVED (Microsoft Windows NT 10.0.26300.0)
+Host Application: C:\WINDOWS\System32\WindowsPowerShell\v1.0\powershell.exe -NoProfile -File C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\scripts\Read-Ucsi.ps1
+Process ID: 20728
+PSVersion: 5.1.26100.9711
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.9711
+BuildVersion: 10.0.26100.9711
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is C:\Users\NIVED\Documents\Codex\2026-11-17\ca\outputs\windows_ucsi\scripts\..\captures\ucsi-20261117-003625-791.txt
+Microsoft PnP Utility
+
+Restarting device:         ACPI\USBC000\0
+Device restarted successfully.
+Device List
+============
+#1* ACPI\USBC000\0
+
+
+Usages:
+
+    UcsiControl.exe [-n <DeviceNumber>] Send <HighDW> <LowDW> [<MsgOutDW0> <MsgOutDW1>] ...
+
+        Send a command.
+        <HighDW> and <LowDW> are hexadecimal 32-bit numbers of UCSI CONTROL.
+        <MsgInDW*> are optional hexadecimal 32-bit numbers of MESSAGE_OUT. Only supported
+        on the Windows 11 versions that support UCSI 2.x.
+
+    UcsiControl.exe [-n <DeviceNumber>] Get
+
+        Get UCSI CCI. Only supported on Windows 10 and the Windows 11 versions that support
+        UCSI 1.x only.
+=== Global capability ===
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x6
+Command: 0x6 (UcsiCommandGetCapability)
+DataLength: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80001000
+ConnectorChangeIndicator: 0
+DataLength: 16
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+44 40 00 00 02 14 00 00
+02 00 20 01 00 02 10 01
+
+UCSI_GET_CAPABILITY_IN:
+-----------------------
+bmAttributes: 0x4044
+ Disabled State support: 0
+ Battery Charging: 0
+ USB Power Delivery: 1
+ USB Type-C Current: 1
+ bmPowerSource: 0x40
+bNumConnectors: 2
+bmOptionalFeatures: 0x14
+ SetUomSupported: 0
+ SetPdmSupported: 0
+ AlternateModeDetailsAvailable: 1
+ AlternateModeOverrideSupported: 0
+ PdoDetailsAvailable: 1
+ CableDetailsAvailable: 0
+ PdResetNotificationSupported: 0
+bNumAltModes: 2
+bcdBcVersion: 0x120
+bcdPdVersion: 0x200
+bcdUsbTypeCVersion: 0x110
+=== Connector 1 capability ===
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x10007
+Command: 0x7 (UcsiCommandGetConnectorCapability)
+DataLength: 0
+ConnectorNumber: 1
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000200
+ConnectorChangeIndicator: 0
+DataLength: 2
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+e1 33
+
+UCSI_GET_CONNECTOR_CAPABILITY_IN:
+---------------------------------
+OperationMode: 0xe1
+ DfpOnly: 1
+ UfpOnly: 0
+ Drp: 0
+ AudioAccessoryMode: 0
+ DebugAccessoryMode: 0
+ Usb2: 1
+ Usb3: 1
+ AlternateMode: 1
+Provider: 1
+Consumer: 1
+=== Connector 1 status ===
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x10012
+Command: 0x12 (UcsiCommandGetConnectorStatus)
+DataLength: 0
+ConnectorNumber: 1
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000900
+ConnectorChangeIndicator: 0
+DataLength: 9
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+00 00 10 20 00 00 00 00
+01
+
+Connector Status:
+-------------------------------------------------
+ConnectorStatusChange: 0x0
+ ExternalSupplyChange: 0
+ PowerOperationModeChange: 0
+ SupportedProviderCapabilitiesChange: 0
+ NegotiatedPowerLevelChange: 0
+ PdResetComplete: 0
+ SupportedCamChange: 0
+ BatteryChargingStatusChange: 0
+ ConnectorPartnerChange: 0
+ PowerDirectionChange: 0
+ ConnectChange: 0
+ Error: 0
+
+PowerOperationMode: 0
+ConnectStatus: 0
+PowerDirection: 1
+
+ConnectorPartnerFlags: 0x0
+ Usb: 0
+ AlternateMode: 0
+ConnectorPartnerType: 1
+RequestDataObject: 0x0
+BatteryChargingStatus: 1
+
+PowerBudgetLimitedReason: 0x0
+ PowerBudgetLowered: 0
+ ReachingPowerBudgetLimit: 0
+=== Connector 1 Local source PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x400010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+00 00 00 15
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x401010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x402010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x403010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x404010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x405010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x406010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 1 Local sink PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x10010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+0a 90 01 36
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x1010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+32 90 01 99
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x2010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+0a 90 01 59
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x3010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x4010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x5010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x6010010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 0
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 1 Partner source PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x400810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x401810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x402810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x403810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x404810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x405810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x406810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 1 Partner sink PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x1810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x2810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x3810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x4810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x5810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x6810010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 1
+PartnerPdo: 1
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 2 capability ===
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x20007
+Command: 0x7 (UcsiCommandGetConnectorCapability)
+DataLength: 0
+ConnectorNumber: 2
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000200
+ConnectorChangeIndicator: 0
+DataLength: 2
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+e1 33
+
+UCSI_GET_CONNECTOR_CAPABILITY_IN:
+---------------------------------
+OperationMode: 0xe1
+ DfpOnly: 1
+ UfpOnly: 0
+ Drp: 0
+ AudioAccessoryMode: 0
+ DebugAccessoryMode: 0
+ Usb2: 1
+ Usb3: 1
+ AlternateMode: 1
+Provider: 1
+Consumer: 1
+=== Connector 2 status ===
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x20012
+Command: 0x12 (UcsiCommandGetConnectorStatus)
+DataLength: 0
+ConnectorNumber: 2
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000900
+ConnectorChangeIndicator: 0
+DataLength: 9
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+00 00 3c 40 2c b1 04 13
+01
+
+Connector Status:
+-------------------------------------------------
+ConnectorStatusChange: 0x0
+ ExternalSupplyChange: 0
+ PowerOperationModeChange: 0
+ SupportedProviderCapabilitiesChange: 0
+ NegotiatedPowerLevelChange: 0
+ PdResetComplete: 0
+ SupportedCamChange: 0
+ BatteryChargingStatusChange: 0
+ ConnectorPartnerChange: 0
+ PowerDirectionChange: 0
+ ConnectChange: 0
+ Error: 0
+
+PowerOperationMode: 4
+ConnectStatus: 1
+PowerDirection: 1
+
+ConnectorPartnerFlags: 0x1
+ Usb: 1
+ AlternateMode: 0
+ConnectorPartnerType: 2
+RequestDataObject: 0x1304b12c
+BatteryChargingStatus: 1
+
+PowerBudgetLimitedReason: 0x0
+ PowerBudgetLowered: 0
+ ReachingPowerBudgetLimit: 0
+=== Connector 2 Local source PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x400020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+00 55 00 15
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x401020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x402020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x403020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x404020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x405020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x406020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 2 Local sink PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x20010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+0a 90 01 36
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x1020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+32 90 01 99
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x2020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+0a 90 01 59
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x3020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x4020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x5020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x6020010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 0
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 2 Partner source PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x400820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x401820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x402820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x403820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x404820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x405820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x5
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x406820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x6
+NumberOfPdos: 0
+SourceOrSinkPdos: 1
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000004
+ConnectorChangeIndicator: 2
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+=== Connector 2 Partner sink PDOs (individual offsets) ===
+PDO offset: 0
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x0
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 1
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x1820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x1
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+2c d1 02 00
+PDO offset: 2
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x2820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x2
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000400
+ConnectorChangeIndicator: 0
+DataLength: 4
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+UCSI MESSAGE_IN:
+================
+e1 c0 03 00
+PDO offset: 3
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x3820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x3
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 4
+Device List
+============
+#1* ACPI\USBC000\0
+
+Device Information
+===================
+UCSI VERSION from PPM: 0.0.0
+UCSI VERSION from client driver: 0.0.0
+Client driver: UcmUcsiAcpiClient.sys
+Client driver's class version: 1.1.0
+UcsiDataBlockExEnabled request from client driver: 0 (WdfFalse)
+UcsiDataBlockExEnabled in class extension driver: 0
+
+UCSI_CONTROL:
+=============
+AsUInt64: 0x4820010
+Command: 0x10 (UcsiCommandGetPdos)
+DataLength: 0
+ConnectorNumber: 2
+PartnerPdo: 1
+PdoOffset: 0x4
+NumberOfPdos: 0
+SourceOrSinkPdos: 0
+SourceCapabilitiesType: 0
+
+Sending the command ...
+
+Command completed successfully.
+
+UCSI VERSION:
+=============
+0.0.0
+
+UCSI_CCI:
+=========
+AsUInt32: 0x80000000
+ConnectorChangeIndicator: 0
+DataLength: 0
+NotSupportedIndicator: 0
+CancelCompletedIndicator: 0
+ResetCompletedIndicator: 0
+BusyIndicator: 0
+AcknowledgeCommandIndicator: 0
+ErrorIndicator: 0
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 5
+CommandCompletedIndicator: 1
+
+MESSAGE_IN is empty.
+PDO offset: 6
+
+
+Cleanup restart exit code: 0
+**********************
+Windows PowerShell transcript end
+End time: 20261117003654
+**********************

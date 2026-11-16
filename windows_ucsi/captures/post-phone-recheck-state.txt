@@ -1,0 +1,6 @@
+2026-11-17T00:37:32.8745346+05:30
+
+Status     : OK
+InstanceId : ACPI\USBC000\0
+
+TestInterfaceEnabled present: False

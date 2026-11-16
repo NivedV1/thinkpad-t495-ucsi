@@ -1,0 +1,14 @@
+2026-11-17T00:18:05.8480822+05:30
+
+Manufacturer : LENOVO
+Model        : 20NKS29V00
+
+
+Caption     : Microsoft Windows 11 Pro
+BuildNumber : 26300
+
+
+Status     : OK
+InstanceId : ACPI\USBC000\0
+
+TestInterfaceEnabled present: False

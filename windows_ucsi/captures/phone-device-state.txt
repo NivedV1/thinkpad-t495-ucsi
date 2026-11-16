@@ -1,0 +1,17 @@
+2026-11-17T00:32:29.3064445+05:30
+
+Status       : OK
+Class        : AndroidUsbDeviceClass
+FriendlyName : Android ADB Interface
+InstanceId   : USB\VID_18D1&PID_4E11\C55211F
+
+Status       : OK
+Class        : AudioEndpoint
+FriendlyName : Microphone Array (Realtek(R) Audio)
+InstanceId   : SWD\MMDEVAPI\{0.0.1.00000000}.{B24812AC-0FB4-4727-9F7C-A709193B34FF}
+
+Status       : OK
+Class        : WPD
+FriendlyName : D:\
+InstanceId   : SWD\WPDBUSENUM\_??_PCISTOR#DISK&VEN_RSPER&PROD_RTS5208LUN0&REV_1.00#0000#{53F56307-B6BF-11D0-94F2-00A0C91EFB8B}
+

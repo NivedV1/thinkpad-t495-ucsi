@@ -1,0 +1,26 @@
+{
+  "SourceFile": "ucsi-20261117-002805-210.txt",
+  "SourceSha256": "A6FA3E8957897E67CEF2DA5FE3676E348EED77F4390BC47CE52B2B18098E81DC",
+  "Note": "Sequential firmware snapshots; fixed partner-source PDO decoding only; requested power is not measured draw.",
+  "PartnerSourcePdos": [],
+  "ConnectorStatus": [
+    {
+      "Connector": 1,
+      "Connected": 1,
+      "RdoHex": "0x00000000",
+      "SelectedPosition": 0,
+      "OperatingAmps": null,
+      "MaximumOperatingAmps": null,
+      "RequestedWatts": null
+    },
+    {
+      "Connector": 2,
+      "Connected": 0,
+      "RdoHex": "0x00000000",
+      "SelectedPosition": 0,
+      "OperatingAmps": null,
+      "MaximumOperatingAmps": null,
+      "RequestedWatts": null
+    }
+  ]
+}
