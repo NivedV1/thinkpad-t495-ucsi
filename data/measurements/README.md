@@ -28,10 +28,12 @@ status/ac      Charging / 1            (no dropouts, no renegotiation)
 An earlier 3-minute window of the same session gave 17.15 W over 176 s, so the
 figure is stable.
 
-Why this matters: the charger is rated `5 V / 3 A` (15 W) on 5 V, and that is
-before system draw. Delivering 17.07 W into the battery therefore requires
-VBUS above 5 V, which the charger only enables through its vendor cable
-identification. UCSI simultaneously reports a `5 V / 3 A` PD contract on the
-same connector, which cannot describe that power path. No Linux interface on
-this machine exposes input voltage or current (`AC/online` only), so the exact
-VBUS voltage was not measurable without an inline meter.
+Why this matters: the battery absorbs 17.07 W at ~11.7 V, while the adapter's
+5 V rail is rated 3 A (15 W) and its own 5 V PDO is exactly `5 V / 3 A`. A
+single 5 V / 3 A contract cannot charge the pack at 17 W and run the system, so
+that entry is not the whole capability list. The full list, read offset by
+offset on Windows, is 5 V, 9 V, 15 V and 20 V, and the RDO `0x43051545` selects
+position 4 (20 V / 3.25 A = 65 W). The measurement is therefore consistent with
+the 20 V profile and rules out the truncated 5 V entry as the contract in force.
+Linux exposes no input voltage or current, so the 20 V figure rests on the
+firmware-reported PDO/RDO pair and the matching Vantage display, not on a meter.

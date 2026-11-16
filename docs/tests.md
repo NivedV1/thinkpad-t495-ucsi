@@ -102,40 +102,49 @@ connector. Capture: [`data/logs/2-charger-nonpd`](../data/logs/2-charger-nonpd)
 (in that run an unrelated audio adapter was on the other connector, hence
 `port0 ... partner=yes`).
 
-## T6 — a charger that cannot do PD is reported with a PD contract
+## T6 — `GET_PDOS` returns one PDO per request
 
-Plug a Xiaomi 67 W Charging Combo (Type-A, MDY-12-EJ) with its own A-to-C cable.
+This is the decisive test for the second defect. Attach any PD source (the
+machine's own 65 W adapter is ideal), bind the interface, and read a single
+connector's partner source PDOs.
 
 ```bash
+# Linux reads a batch of 4 internally; the snapshot shows what it kept:
 sudo ./scripts/30-snapshot.sh /tmp/t6
-sudo ./scripts/50-charge-rate.sh 360 /tmp/t6-rate
+grep -A4 'partner source PDOs' /tmp/t6/summary.txt
 ```
 
-Expected (and what happened here):
+On this machine the batch read yields exactly one entry:
 
 ```text
-power_operation_mode          usb_power_delivery
-partner supports_usb_power_delivery = yes
-partner PD object revision    2.0
-partner source PDOs           5000 mV / 3000 mA
-cable object                  none            <- no e-marker is read
-psy usb_type                  "C [PD] PD_PPS"
+  partner source PDOs:
+  1:fixed_supply/
+    voltage                5000mV
+    maximum_current        3000mA
 ```
 
-and from the energy counter:
+Windows, on the same machine, asks for four and receives `DataLength: 4`; then
+asks offsets 0–3 individually and receives the whole list:
 
 ```text
-energy slope   17.07 W      (over 357 s, 72 samples)
+offset 0 -> 2c 91 01 0a   5 V / 3 A
+offset 1 -> 2c d1 02 00   9 V / 3 A
+offset 2 -> 2c b1 04 00   15 V / 3 A
+offset 3 -> 4f 41 06 00   20 V / 3.35 A
+offset 4 -> DataLength: 0
 ```
 
-PD cannot exist on an A-to-C cable, and 5 V x 3 A cannot deliver 17 W, so the
-reported contract does not describe the power path. Capture:
-[`data/logs/3-xiaomi-a-to-c`](../data/logs/3-xiaomi-a-to-c),
-[`data/measurements`](../data/measurements).
+The first PDO Linux reads matches Windows' PDO 1 byte for byte, so the transport
+is fine and only the count is wrong. The ThinkPad 65 W adapter shows the same
+shape with PDO 4 = `0x00164145` (20 V / 3.25 A).
 
-This test alone invites an objection: maybe the EC reported what that unusual
-cable negotiated. T7c removes it — the machine's own 65 W PD adapter produces
-the identical `5 V / 3 A` table while delivering 17.37 W.
+`5 V × 3 A` is therefore the first of four advertised profiles, not the whole
+list. It is not necessary to explain the 17 W battery draw with a hypothetical
+voltage above 5 V: the RDO selects position 4 (20 V) at 3.25 A, which is 65 W.
+
+Capture: [`data/logs/3-xiaomi-a-to-c`](../data/logs/3-xiaomi-a-to-c),
+[`data/measurements`](../data/measurements),
+[`windows_ucsi/captures/ucsi-results.txt`](../windows_ucsi/captures/ucsi-results.txt).
 
 ## T7 — same phone, both connectors: PD state is not stable
 
@@ -219,8 +228,9 @@ cat /sys/class/power_supply/BAT0/power_now      # 17369000 uW on this machine
 cat /sys/class/power_supply/BAT0/voltage_now    # 11634000 uV
 ```
 
-17.37 W into the pack at 11.63 V is 1.49 A, and it is more than the reported
-`5 V x 3 A` source can supply in total, before system draw. Capture:
+17.37 W into the pack at 11.63 V is 1.49 A. That is well inside a 20 V / 3.25 A
+(65 W) contract, and impossible from the single `5 V / 3 A` entry Linux shows —
+which is the point: the entry is truncated, not negotiated. Capture:
 [`data/snapshots/lenovo-65w-typec.txt`](../data/snapshots/lenovo-65w-typec.txt).
 
 ## T8 — PDOs, alt modes, identity, stale state
@@ -234,15 +244,18 @@ diff -u /tmp/t8-idle/summary.txt /tmp/t8/summary.txt | head -40
 Check for:
 
 - `source-capabilities` of `0 mV / 0 mA` or `1050 mV / 2560 mA`
+- only one partner source PDO on a charger that advertises more — the batch
+  read is truncated (`GET_PDOS` returns one PDO per call)
+- `voltage_now = 0` while `current_now` is non-zero: `voltage_now` indexes
+  `src_pdos[rdo_index - 1]`, beyond the single PDO the driver read, while
+  `current_now` comes from the RDO
 - partner `usb_power_delivery_revision` = `0.0` while the PD object says `2.0`
   (kernel-side only: the attribute is filled at UCSI >= 2.1)
 - empty `id_header`, `product`, `product_type`, `number_of_alternate_modes = 0`
 - no `cable` directory
-- PSY `current_now` above the last source PDO's current, or `voltage_now = 0`
-  while the PDO has a voltage — both come from the EC's RDO
 - alt modes `0x17ef` / `0x01ff` with `vdo=0x00000001`
-- after unplugging, `power_operation_mode` / `power_role` still showing the old
-  value on the idle connector
+- right after unplugging, `power_operation_mode` may still show the old value
+  for a second or two before returning to `default`
 
 ## T9 — DisplayPort alt mode
 
@@ -254,7 +267,8 @@ sudo dmesg | grep -iE 'dp alt|displayport|typec'
 ```
 
 UCSI exposes no `0xff01` SVID, so DP alt mode cannot be registered through this
-path. If you have a machine where it works, that is worth an issue.
+path. DP was not tested on Windows, so whether the hardware can do it is still
+open. If you have a machine where it works, that is worth an issue.
 
 ## T10 — check whether a different BIOS fixed it
 
@@ -262,3 +276,17 @@ Before running anything that writes, `scripts/00-prereq.sh` and
 `scripts/10-dump-ucsi.sh` are enough: if `typec` entries already exist or
 `VERSION` is non-zero, Lenovo has changed the firmware. Please report the BIOS
 version with the output.
+
+## T11 — Windows cross-check
+
+The strongest independent test does not need the RAM patch. Boot Windows on the
+same machine and follow [`windows_ucsi/README.md`](../windows_ucsi/README.md).
+Report four things:
+
+1. PnP status of `ACPI\USBC000\0` and whether `UcmUcsiAcpiClient` is bound;
+2. the UCSI version the tool prints (expected `0.0.0`);
+3. `CCI DataLength` for a multi-PDO `GET_PDOS` (expected `4` for a request of 3);
+4. the per-offset PDO list (expected four entries, up to 20 V).
+
+If Windows shows four PDOs while Linux shows one, the truncated reply is
+confirmed on a second OS with Microsoft's own client stack.

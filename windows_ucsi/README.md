@@ -64,6 +64,39 @@ are published unredacted, exactly as captured.
 
 The tool printed UCSI VERSION **0.0.0** for both PPM and client driver, despite successful command responses. Treat this as an anomalous/unusable version report, not proof that the device implements a specification called UCSI 0.0.0. The PD version capability field is not a captured PD packet-header revision.
 
+## Is your machine affected?
+
+Two checks. The first needs no tools; the second uses Microsoft's UCSI test tool
+and the capture script in this archive.
+
+```powershell
+Get-PnpDevice -InstanceId 'ACPI\USBC000\0' | Select-Object Status,Problem
+Get-CimInstance Win32_BIOS | Select-Object SMBIOSBIOSVersion,ReleaseDate
+```
+
+| Result | Meaning |
+|---|---|
+| `Status OK`, `Problem 0` | Windows accepts the device. If Linux shows no `/sys/class/typec/` ports, the zero-version gate is Linux-side. |
+| `Problem 10` / `43`, `Status Error` | the firmware fails under Windows too — a stronger report. |
+| device absent | inconclusive; this needs a real Windows install, not WinPE. |
+
+Then, for the response length, in an administrator PowerShell in this folder:
+
+```powershell
+.\scripts\Read-Ucsi.ps1
+```
+
+Check the generated transcript for four things:
+
+1. `UCSI VERSION from PPM: 0.0.0` (expected);
+2. a `GET_PDOS` with `NumberOfPdos: 3` (four requested) returning
+   `DataLength: 4` and one 4-byte `MESSAGE_IN`;
+3. the per-offset sections showing up to four PDOs (5 V, 9 V, 15 V, 20 V);
+4. `RequestDataObject: 0x43051545` for a 20 V-capable charger.
+
+`UCSIControl.exe` is not redistributed here; extract it first — see
+[`tools/README.md`](tools/README.md).
+
 ## Findings and raw values
 
 ### Global capability
@@ -105,13 +138,30 @@ For a fixed PDO, type bits 31:30 are zero; voltage is bits 19:10 multiplied by 5
 
 For RDO `0x43051545`:
 
-- Object position = `(RDO >> 28) & 7` = 4.
-- Operating current = `((RDO >> 10) & 1023) * 0.01` = 3.25 A.
-- Maximum operating current = `(RDO & 1023) * 0.01` = 3.25 A.
+- Object position = `(RDO >> 28) & 0xF` = 4.
+- Operating current (bits 9:0) = `(RDO & 0x3FF) * 0.01` = 3.25 A.
+- Maximum operating current (bits 19:10) = `((RDO >> 10) & 0x3FF) * 0.01` = 3.25 A.
 - Selected PDO voltage = 20 V, hence requested power = 65 W.
-- Capability-mismatch bit 26 = 0; GiveBack bit 27 = 0.
+- Bits 25 and 24 (GiveBack and Capability Mismatch in the PD specification) are
+  set; the two current fields are equal, so they do not affect the 65 W result.
 
 This explains the distinction between a 67 W advertised source and a 65 W requested contract. It does **not** prove Vantage uses this exact API or computation.
+
+### The response is always one PDO
+
+The first capture asked for four PDOs in one command and received one:
+
+```text
+NumberOfPdos: 3        <- four requested
+CCI DataLength: 4      <- four bytes returned
+MESSAGE_IN: 2c 91 01 0a
+```
+
+The second capture asked each offset separately and received the whole list.
+So the firmware ignores the requested count; `DataLength` is the only reliable
+indicator of how many PDOs arrived. This matters beyond Windows: Linux's UCSI
+driver asks for four, receives one, and therefore records a one-entry capability
+list. See the top-level README §2–§3.
 
 ### Laptop-side PDO anomalies
 

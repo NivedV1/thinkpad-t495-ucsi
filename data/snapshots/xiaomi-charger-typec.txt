@@ -101,6 +101,11 @@ registration and "PD" a few seconds later, the partner keeps "no" for the whole
 attach while the port reports PD and a PD object exists. See docs/pd-verdict.md.
 
 RDO-derived PSY values on this attach:
-  current_now = rdo_op_current(rdo) = 3250 mA, while the only PDO is 3000 mA
-  voltage_now = rdo_index(rdo) indexes the 5000 mV PDO, but reads 0 mV
-Both imply the EC's Request Data Object does not describe a valid contract.
+  current_now = rdo_op_current(rdo) = 3250 mA
+  voltage_now = 0 mV, although the RDO selects position 4
+
+Both are truncation artefacts, not a bad RDO. This firmware returns one PDO per
+GET_PDOS request, so Linux records a one-entry capability list:
+src_pdos[3] is zero (hence voltage_now = 0) and the last available entry is
+src_pdos[0] = 5 V / 3 A. The RDO itself selects position 4 at 3.25 A, which is
+the 20 V profile. See the top-level README §2-§3.

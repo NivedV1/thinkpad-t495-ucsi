@@ -86,15 +86,20 @@ BAT0 at the same time, 43%:
 WHAT THE TWO ATTACHES AGREE ON
 
 1. The adapter is a 65 W part rated 20 V / 3.25 A. The only source capability
-   UCSI ever reports for it is a single 5 V / 3 A fixed supply - the USB Type-C
-   default current at the default voltage, not a 20 V contract.
+   the Linux driver ever shows for it is a single 5 V / 3 A fixed supply,
+   because this firmware returns one PDO per GET_PDOS request and Linux asks
+   only once. Windows walks offsets 0-3 on the same machine and gets
+   5 V / 3 A, 9 V / 3 A, 15 V / 3 A and 20 V / 3.25 A.
 
-2. 5 V x 3 A = 15 W. The battery alone absorbs 17.37 W at 11.63 V, plus system
-   load, so VBUS cannot be 5 V. The reported source capability cannot be the
-   contract in force.
+2. The Request Data Object 0x43051545 selects object position 4, which is the
+   20 V profile, at 3.25 A -> 65 W. The battery taking 17.37 W at 11.63 V is
+   well inside that contract. There is no power-conservation paradox.
 
-3. The RDO-derived PSY values are internally inconsistent: current_now 3.25 A
-   against a 3 A maximum, voltage_now 0 V against a 5 V entry.
+3. The PSY values are computed from that truncated list: voltage_now indexes
+   src_pdos[rdo_index - 1] = src_pdos[3] and reads 0 V; voltage_max and
+   current_max come from src_pdos[0] and read 5 V / 3 A; current_now comes
+   from the RDO and reads 3.25 A. They are one short read, not a fabricated
+   negotiation.
 
 4. supports_usb_power_delivery is not a property of the adapter. It read "no"
    for eight minutes on attach A and "yes" for the whole of attach B, with the

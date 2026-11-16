@@ -67,10 +67,14 @@ Xiaomi 67 W Type-A charger on its own A-to-C cable, same `port1` both times,
 
 | Time | `power_operation_mode` | partner `supports_usb_power_delivery` | PD object |
 |---|---|---|---|
-| 22:05:00–22:06:46 | `usb_power_delivery` | `no` | rev 2.0, 5 V / 3 A |
+| 22:05:00–22:06:46 | `usb_power_delivery` | `no` | rev 2.0, first PDO 5 V / 3 A |
 | 22:06:47 (unplug) | `default` | partner gone | gone |
 | 22:06:54 (replug) | `usb_power_delivery` | **`yes`** | not yet present |
-| 22:06:57 onward | `usb_power_delivery` | `yes` | rev 2.0, 5 V / 3 A |
+| 22:06:57 onward | `usb_power_delivery` | `yes` | rev 2.0, first PDO 5 V / 3 A |
+
+"First PDO" is literal: this firmware returns one PDO per `GET_PDOS`
+regardless of the requested count, and Linux only ever asks once. The charger
+really offers four profiles; see the main README §2–§3.
 
 The charger and cable did not change. The connector did not change. The value
 flipped because the EC's answer arrived in a different order this time.
@@ -87,10 +91,13 @@ The strongest version of this needs no exotic charger. The machine's own Lenovo
 | what changed | — | connector flipped over in the port |
 | `power_operation_mode` | `usb_power_delivery` | `usb_power_delivery` |
 | partner `supports_usb_power_delivery` | `no` | **`yes`** |
-| partner PD object | **absent** | rev 2.0, source PDO 5 V / 3 A |
+| partner PD object | **absent** | rev 2.0, first PDO 5 V / 3 A |
 | PSY `current_now` | 2.68 A | 3.25 A |
 | PSY `voltage_now` | 0 V | 0 V |
 | battery | Charging, 17.11–17.27 W | Charging, 17.37 W at 11.63 V |
+
+The 5 V / 3 A entry and the 0 V / 3.25 A PSY values are the truncated-list
+artefact described in the main README §3, not a contract the adapter offered.
 
 Flipping the connector does not change what the adapter can do. It only forces a
 detach and a fresh attach — and a fresh attach is where the snapshot is taken.
@@ -138,19 +145,17 @@ all — but it is the other way to lose the PD object.
   the connector can do the same on the machine's own 65 W adapter.
 - Why "no PD object" and "PD object with a 5 V / 3 A PDO" are both observed for
   a 20 V / 3.25 A adapter: the object's presence is decided by whether the
-  registration task ran while the EC was reporting `PD`.
+  registration task ran while the EC was reporting `PD`, and the single entry
+  in the object is what the firmware returns per `GET_PDOS` call.
 
 ## What it does not explain
 
-- The source capability itself. A 65 W adapter rated 20 V / 3.25 A is reported
-  with exactly one PDO, `5 V / 3 A`, on both attaches — the Type-C default, not
-  the contract. The A-to-C charger produces the same table even though it has no
-  CC conductor. Whatever produces that list is not reading the adapter.
-- Power conservation. `5 V x 3 A` is 15 W; the battery alone takes 17.37 W at
-  11.63 V. The reported contract cannot be the one in force.
-- The invalid source PDOs (`0 mV / 0 mA`, `1050 mV / 2560 mA`).
-- The RDO-derived PSY values: `current_now` 3.25 A against a 3 A maximum, and
-  `voltage_now` 0 V against a 5 V PDO.
+- The source capability list is not fabricated; it is truncated. The EC
+  advertises four PDOs and Windows reads all four by walking offsets. Linux
+  asks once and stops at the short reply. See the main README §2–§3.
+- The invalid local source PDOs (`0 mV / 0 mA`, `1050 mV / 2560 mA`). These are
+  the same in Windows and Linux and are unrelated to this race.
+- Connector 1's change bits are stuck at `0x4040` on both operating systems.
 - The swapped connector numbering relative to ACPI `_PLD`.
 
 Those stand on their own. The registration-time race removes the "is it the
