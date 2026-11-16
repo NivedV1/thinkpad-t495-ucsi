@@ -373,6 +373,7 @@ sudo ./scripts/10-dump-ucsi.sh       # read-only: build module, dump registers
 
 # only if you accept the risk described in docs/safety.md:
 sudo ./scripts/20-enable-ucsi.sh     # patch VERSION in RAM + bind ucsi_acpi
+sudo ./scripts/25-walk-pdos.sh       # PDOs offset by offset (same walk as Windows)
 sudo ./scripts/30-snapshot.sh /tmp/typec-before
 sudo ./scripts/40-watch.sh /tmp/typec-watch 180   # plug/unplug while it runs
 sudo ./scripts/50-charge-rate.sh 360              # for chargers
@@ -458,7 +459,7 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 | `report/thinkpad-t495-ucsi-report.md` | the support report prepared for Lenovo (full + web-form version) |
 | `windows_ucsi/` | Windows captures, decoded PDOs, reproduction scripts and provenance |
 | `module/ucsi_peek.c` | the diagnostic module (read-only by default) |
-| `scripts/` | prerequisite check, register dump, enable/undo, snapshot, 1 Hz watch, charge-rate fit |
+| `scripts/` | prerequisite check, register dump, enable/undo, PDO walk, snapshot, 1 Hz watch, charge-rate fit |
 | `data/ucsi-register-block.txt` | raw register dumps, three states |
 | `data/acpi/ssdt1-UBTC-excerpt.dsl` | `_SB.UBTC`, `CR01`, `CR02`, `_DSM`, EC mailbox |
 | `data/acpi/port-mapping.md` | `_PLD` byte matching behind the numbering swap |

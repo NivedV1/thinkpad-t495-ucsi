@@ -146,6 +146,32 @@ Capture: [`data/logs/3-xiaomi-a-to-c`](../data/logs/3-xiaomi-a-to-c),
 [`data/measurements`](../data/measurements),
 [`windows_ucsi/captures/ucsi-results.txt`](../windows_ucsi/captures/ucsi-results.txt).
 
+### Linux equivalent of the offset walk
+
+The kernel's own `GET_PDOS` is a single four-PDO read, so sysfs only ever shows
+one entry. The per-offset walk can still be done in Linux through UCSI debugfs,
+which sends the same control value the Windows tool sent:
+
+```bash
+sudo ./scripts/20-enable-ucsi.sh          # bind the driver (RAM patch)
+sudo ./scripts/25-walk-pdos.sh
+```
+
+Example output on this machine:
+
+```text
+conn 1 partner 1 offset 0  0x0A01912C   5000 mV  3000 mA (fixed)
+conn 1 partner 1 offset 1  0x0002D12C   9000 mV  3000 mA (fixed)
+conn 1 partner 1 offset 2  0x0004B12C  15000 mV  3000 mA (fixed)
+conn 1 partner 1 offset 3  0x0006414F  20000 mV  3350 mA (fixed)
+conn 1 partner 1 offset 4  no data (end of list)
+```
+
+The debugfs interface does not expose `CCI DataLength`; a zero reply marks the
+end of the list. For a four-PDO request the kernel writes `0x700810010`, which
+is exactly the `UCSI_CONTROL` value in the Windows capture — the requests are
+identical, only the reply length differs.
+
 ## T7 — same phone, both connectors: PD state is not stable
 
 Attach a phone over a C-to-C cable, then move it to the other connector, then
