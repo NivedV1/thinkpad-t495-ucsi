@@ -1,0 +1,6 @@
+samples        72 over 357 s (6.0 min)
+energy         22.390 Wh -> 24.090 Wh  (delta 1.700 Wh)
+energy slope   17.07 W
+power_now      mean 17.56 W  min 17.50  max 17.61
+batt voltage   11.72 V -> 11.79 V
+status/ac      Charging / 1

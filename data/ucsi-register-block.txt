@@ -1,0 +1,30 @@
+UCSI ACPI register block, ThinkPad T495 20NK••••••, BIOS R12ET64W (1.34)
+Region: _CRS Memory32Fixed 0xBD6B2000, length 0x1000; EC-backed via _DSM (ECWR/ECRD)
+Read with an out-of-tree module (ioremap_cache, 4-byte aligned); /dev/mem is blocked on this kernel.
+Dump length 0x30 (VERSION, CCI, CONTROL, MESSAGE IN, MESSAGE OUT).
+
+=== A. Firmware default, before any write (ucsi_acpi probe fails) ===
+VERSION=0x0000  CCI=0x08000002
+raw +00: 00 00 00 00 02 00 00 08 00 00 00 00 00 00 00 00
+raw +10: 00 00 00 20 00 00 00 00 01 00 20 01 00 02 10 01
+raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+=== B. After writing 0x0110 into VERSION (RAM only, test) ===
+VERSION=0x0110  CCI=0x20000000
+raw +00: 10 01 00 00 00 00 00 20 04 00 02 00 00 00 00 00
+raw +10: 00 00 3c 40 00 00 00 00 01 00 20 01 00 02 10 01
+raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+=== C. After writing 0x0110, Mi 11X phone attached (C-to-C) ===
+VERSION=0x0110  CCI=0x20000000
+raw +00: 10 01 00 00 00 00 00 20 04 00 02 00 00 00 00 00
+raw +10: 00 00 3c 40 2c b1 04 13 01 00 20 01 00 02 10 01
+raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Notes
+- A. VERSION is 0x0000. ucsi_acpi_read_version() succeeds and returns 0,
+  so ucsi_register() takes its version==0 branch and returns -ENODEV.
+- B. Writing 0x0100 or 0x0110 both bind; results identical. The value is in
+  RAM and is lost on reboot.
+- CCI bits observed: 0x08000000 (BUSY/ACK path during probe) and 0x20000000
+  (ACK_COMPLETE) after the interface is up.

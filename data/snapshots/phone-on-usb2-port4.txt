@@ -1,0 +1,25 @@
+# Recorded 2026-11-16 21:37 IST. Mi 11X on the connector that enumerates as usb 2-4.
+# 127 consecutive 1 Hz samples showed exactly this state.
+
+usb 2-4: idVendor=18d1 idProduct=4e11  "Mi 11X"  (MTP + ADB)
+/sys/class/typec/port0   <- CR01 by ACPI, i.e. the wrong connector (see acpi/port-mapping.md)
+  data_role                    [host]
+  power_role                   [source]
+  power_operation_mode         default
+  partner object               present
+  cable object                 none
+  altmode port0.0              svid=0x17ef mode=1 vdo=1 active=yes
+  altmode port0.1              svid=0x01ff mode=1 vdo=1 active=yes
+
+/sys/class/typec/port0-partner
+  id_header                    (empty)
+  product                      (empty)
+  product_type                 (empty)
+  number_of_alternate_modes    0
+  supports_usb_power_delivery  no
+  usb_power_delivery_revision  0.0
+  usb_power_delivery/          (directory absent)
+
+/sys/class/typec/port1   <- idle, and stale
+  power_operation_mode         usb_power_delivery   (left over, no partner)
+  power_role                   [source] sink

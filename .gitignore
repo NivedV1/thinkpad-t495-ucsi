@@ -1,0 +1,14 @@
+# build artifacts of the module
+*.o
+*.ko
+*.mod
+*.mod.c
+*.symvers
+*.order
+.*.cmd
+.tmp_versions/
+
+# scratch output written by the scripts into the repo root
+/*.log
+/*.txt
+/tmp-*/

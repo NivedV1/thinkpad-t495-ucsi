@@ -1,0 +1,94 @@
+name: Affected machine report
+description: Report a ThinkPad whose UCSI VERSION is 0x0000, or whose patched UCSI data is wrong
+title: "[report] <model> / BIOS <version> / VERSION=<value>"
+labels: ["report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. Please run these two read-only commands and paste
+        the output below; they are what makes the report actionable.
+
+        ```bash
+        sudo ./scripts/00-prereq.sh 2>&1 | tee /tmp/prereq.txt
+        sudo ./scripts/10-dump-ucsi.sh 2>&1 | tee /tmp/dump.txt
+        ```
+
+        Read [docs/safety.md](https://github.com/NivedV1/thinkpad-t495-ucsi/blob/main/docs/safety.md) before running anything
+        with `patch=1`.
+
+  - type: input
+    id: model
+    attributes:
+      label: Model and machine type
+      description: e.g. ThinkPad T495, 20NK012345
+    validations:
+      required: true
+
+  - type: input
+    id: bios
+    attributes:
+      label: BIOS version and date
+      description: e.g. R12ET64W (1.34), 2024-02-23
+    validations:
+      required: true
+
+  - type: input
+    id: kernel
+    attributes:
+      label: Distribution and kernel
+      description: e.g. Fedora 44, 6.19.10-300.fc44.x86_64
+    validations:
+      required: true
+
+  - type: dropdown
+    id: typec
+    attributes:
+      label: Does /sys/class/typec contain ports?
+      options:
+        - "No - empty"
+        - "Yes - ports appear without any patch"
+        - "Yes - only after patching VERSION"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: VERSION value from 10-dump-ucsi.sh
+      description: e.g. 0x0000
+    validations:
+      required: true
+
+  - type: textarea
+    id: prereq
+    attributes:
+      label: Output of scripts/00-prereq.sh
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: dump
+    attributes:
+      label: Output of scripts/10-dump-ucsi.sh
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else worth knowing
+      description: |
+        For example: does DisplayPort over USB-C work in Windows on the same
+        machine? Did a PD charger negotiate differently? Did the patched
+        interface behave differently from what the README describes?
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed serial numbers and other personal data from the pasted output
+          required: true

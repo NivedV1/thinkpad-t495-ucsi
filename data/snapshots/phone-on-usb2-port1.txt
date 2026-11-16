@@ -1,0 +1,35 @@
+# Recorded 2026-11-16 21:39-21:41 IST. Same Mi 11X, same C-to-C cable, moved
+# to the connector that enumerates as usb 2-1.
+
+usb 2-1: idVendor=18d1 idProduct=4e11  "Mi 11X"
+/sys/class/typec/port1   <- CR02 by ACPI, i.e. again the wrong connector
+  data_role                    [host]
+  power_role                   [source]
+  power_operation_mode         usb_power_delivery
+  usb_power_delivery_revision  2.0
+  partner object               present
+  cable object                 none
+
+/sys/class/typec/port1-partner
+  supports_usb_power_delivery  yes
+  usb_power_delivery_revision  0.0
+  id_header                    (empty)
+  product                      (empty)
+  number_of_alternate_modes    0
+  usb_power_delivery/revision  2.0
+  source-capabilities/1:fixed_supply
+    voltage                    5000 mV
+    maximum_current            1500 mA
+
+/sys/class/typec/port1/usb_power_delivery/source-capabilities/1:fixed_supply
+  voltage                      1050 mV     <- not a valid PD voltage
+  maximum_current              2560 mA
+
+/sys/class/typec/port0   <- idle, and stale
+  power_operation_mode         default
+  power_role                   [source] sink   (left over sink selection)
+
+Later, with the phone on the other connector and the port acting as source,
+ucsi-source-psy-USBC000:001 reported voltage_now=5000000, current_max=1500000
+while that port's own source PDO read 0 mV / 0 mA -- i.e. the PSY numbers do not
+come from the port's capability table.

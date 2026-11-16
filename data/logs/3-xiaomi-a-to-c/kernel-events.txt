@@ -1,0 +1,66 @@
+[46164.321351] usb 2-4: new full-speed USB device number 3 using xhci_hcd
+[46164.472091] usb 2-4: New USB device found, idVendor=0624, idProduct=3d3f, bcdDevice= 1.00
+[46164.472108] usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[46164.472117] usb 2-4: Product: AB17X USB Audio
+[46164.472125] usb 2-4: Manufacturer: Generic
+[46164.472132] usb 2-4: SerialNumber: <redacted>
+[47579.716343] ucsi_peek: loading out-of-tree module taints kernel.
+[47579.716358] ucsi_peek: module verification failed: signature and/or required key missing - tainting kernel
+[47579.717018] ucsi_peek: mapped 0xbd6b2000+0x30
+[47579.717025] ucsi_peek: VERSION=0x0000 CCI=0x08000002
+[47579.717032] ucsi_peek: raw +00: 00 00 00 00 02 00 00 08 00 00 00 00 00 00 00 00 
+[47579.717039] ucsi_peek: raw +10: 00 00 00 20 00 00 00 00 01 00 20 01 00 02 10 01 
+[47579.717046] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[47579.717050] ucsi_peek: read-only mode, nothing written
+[47595.422420] ucsi_peek: mapped 0xbd6b2000+0x30
+[47595.422442] ucsi_peek: VERSION=0x0000 CCI=0x08000002
+[47595.422450] ucsi_peek: raw +00: 00 00 00 00 02 00 00 08 00 00 00 00 00 00 00 00 
+[47595.422458] ucsi_peek: raw +10: 00 00 00 20 00 00 00 00 01 00 20 01 00 02 10 01 
+[47595.422465] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[47595.422468] ucsi_peek: patched VERSION 0x0000 -> 0x0100 (readback)
+[47598.526273] typec port1: bound usb2-port4 (ops connector_ops)
+[47598.526300] typec port1: bound usb3-port4 (ops connector_ops)
+[47724.275764] ucsi_peek: unloading, VERSION left at 0x0100
+[47724.383528] ucsi_peek: mapped 0xbd6b2000+0x30
+[47724.383541] ucsi_peek: VERSION=0x0100 CCI=0x20000000
+[47724.383548] ucsi_peek: raw +00: 00 01 00 00 00 00 00 20 04 00 02 00 00 00 00 00 
+[47724.383556] ucsi_peek: raw +10: 00 00 00 20 00 00 00 00 01 00 20 01 00 02 10 01 
+[47724.383562] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[47724.383566] ucsi_peek: read-only mode, nothing written
+[47814.342478] ucsi_peek: mapped 0xbd6b2000+0x30
+[47814.342492] ucsi_peek: VERSION=0x0100 CCI=0x20000000
+[47814.342502] ucsi_peek: raw +00: 00 01 00 00 00 00 00 20 05 00 00 00 00 00 00 00 
+[47814.342513] ucsi_peek: raw +10: 00 00 00 20 00 00 00 00 01 00 20 01 00 02 10 01 
+[47814.342522] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[47814.342527] ucsi_peek: VERSION already 0x0100, overwriting
+[47814.342531] ucsi_peek: patched VERSION 0x0000 -> 0x0110 (readback)
+[47817.375805] typec port1: bound usb2-port4 (ops connector_ops)
+[47817.375828] typec port1: bound usb3-port4 (ops connector_ops)
+[47849.607970] usb 2-4: USB disconnect, device number 3
+[47863.765510] usb 2-4: new full-speed USB device number 4 using xhci_hcd
+[47863.914785] usb 2-4: New USB device found, idVendor=0624, idProduct=3d3f, bcdDevice= 1.00
+[47863.914802] usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[47863.914810] usb 2-4: Product: AB17X USB Audio
+[47863.914817] usb 2-4: Manufacturer: Generic
+[47863.914823] usb 2-4: SerialNumber: <redacted>
+[47876.292005] usb 2-4: USB disconnect, device number 4
+[47885.528554] usb 2-4: new full-speed USB device number 5 using xhci_hcd
+[47885.680864] usb 2-4: New USB device found, idVendor=0624, idProduct=3d3f, bcdDevice= 1.00
+[47885.680883] usb 2-4: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+[47885.680893] usb 2-4: Product: AB17X USB Audio
+[47885.680902] usb 2-4: Manufacturer: Generic
+[47885.680910] usb 2-4: SerialNumber: <redacted>
+[47905.249371] ucsi_peek: unloading, VERSION left at 0x0110
+[47905.351318] ucsi_peek: mapped 0xbd6b2000+0x30
+[47905.351335] ucsi_peek: VERSION=0x0110 CCI=0x20000000
+[47905.351343] ucsi_peek: raw +00: 10 01 00 00 00 00 00 20 04 00 02 00 00 00 00 00 
+[47905.351357] ucsi_peek: raw +10: 00 00 3c 40 00 00 00 00 01 00 20 01 00 02 10 01 
+[47905.351365] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[47905.351371] ucsi_peek: read-only mode, nothing written
+[48113.229323] ucsi_peek: mapped 0xbd6b2000+0x30
+[48113.229333] ucsi_peek: VERSION=0x0110 CCI=0x20000000
+[48113.229342] ucsi_peek: raw +00: 10 01 00 00 00 00 00 20 04 00 02 00 00 00 00 00 
+[48113.229351] ucsi_peek: raw +10: 00 00 3c 40 00 00 00 00 01 00 20 01 00 02 10 01 
+[48113.229362] ucsi_peek: raw +20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 
+[48113.229366] ucsi_peek: read-only mode, nothing written
+[48276.079451] usb 2-4: USB disconnect, device number 5

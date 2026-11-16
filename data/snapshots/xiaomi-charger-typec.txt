@@ -1,0 +1,34 @@
+# Recorded 2026-11-16 21:26-21:32 IST during the Xiaomi 67 W A-to-C charge test.
+# Mi 11X was not attached. Only the fields listed were read; nothing inferred.
+
+/sys/class/typec/port0
+  power_operation_mode          usb_power_delivery
+  power_role                    source [sink]        <- sink selected, correctly
+  data_role                     [device]
+  usb_power_delivery_revision   2.0
+  vconn_source                  no
+  partner object                present (port0-partner)
+  cable object                  none
+  altmode port0.0               svid=0x17ef mode=1 vdo=0x00000001 active=yes
+  altmode port0.1               svid=0x01ff mode=1 vdo=0x00000001 active=yes
+
+/sys/class/typec/port0-partner
+  supports_usb_power_delivery   yes
+  usb_power_delivery_revision   0.0
+  id_header                     (empty)
+  product                       (empty)
+  number_of_alternate_modes     0
+
+/sys/class/typec/port0-partner/usb_power_delivery
+  revision                      2.0
+  source-capabilities/1:fixed_supply
+    voltage                    5000 mV
+    maximum_current            3000 mA
+
+ucsi-source-psy-USBC000:001
+  usb_type                     "C [PD] PD_PPS"
+  online                       0
+  voltage_now                  0
+  voltage_max                  5000 mV
+
+Battery at the same time: status=Charging, AC online=1, energy slope 17.07 W.
