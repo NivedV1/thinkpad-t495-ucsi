@@ -92,7 +92,7 @@ Client driver:                         UcmUcsiAcpiClient.sys
 
 Every `GET_CAPABILITY`, `GET_CONNECTOR_CAPABILITY`, `GET_CONNECTOR_STATUS` and `GET_PDOS` command returned `Command completed successfully`. Microsoft's UCSI test tool is the mechanism; it needs the device's diagnostic interface enabled temporarily (`TestInterfaceEnabled=1`), which was restored afterwards. Only `GET_*` commands were sent.
 
-So the zero version does not prevent the platform's own UCSI client from operating. It is rejected only by Linux's `version == 0` check. A DMI quirk in `ucsi_acpi` would let the driver bind; that file already contains one per-model quirk (LG Gram, selecting an alternate ops table), though nothing that touches the version check. The defects in §3 and §6–§8 would remain.
+So the zero version does not prevent the platform's own UCSI client from operating. It is rejected only by Linux's `version == 0` check. A DMI quirk in `ucsi_acpi` would let the driver bind, and mainline has since added exactly that for two other vendors: Acer Nitro ANV15-41 (`8c51ea651d04`, 2026-09-10, assumes UCSI 1.2) and HP ZBook 8 G2i 14 (`3ee1e1c3fca6`, 2026-10-25, assumes UCSI 1.0). Both are `read_version` overrides gated on a zero read, with a `dev_warn()`. No Lenovo entry exists. The defects in §3 and §6–§8 would remain.
 
 ## 3. GET_PDOS returns one PDO for a four-PDO request
 
@@ -292,7 +292,7 @@ UCSI maintainer Heikki Krogerus:
 > "Again with the missing version. Please contact Lenovo. This is a bug in their
 > firmware. The version field must supply the actual ucsi version."
 
-Writing `0x0100` into the version field made the driver bind there too, and USB-C display hotplug was reported working. Current mainline has **no Lenovo quirk and no zero-version workaround at all**; the only DMI quirk in `ucsi_acpi.c` is for one LG Gram model and only selects an alternate ops table. T495/T14 Gen 2a users therefore have no automatic fix.
+Writing `0x0100` into the version field made the driver bind there too, and USB-C display hotplug was reported working. Current mainline has **no Lenovo quirk**, so T495/T14 Gen 2a users have no automatic fix — even though two other vendors received exactly this workaround in 2026: Acer Nitro ANV15-41 (`8c51ea651d04`) and HP ZBook 8 G2i 14 (`3ee1e1c3fca6`), each overriding `read_version` only when firmware reports zero.
 
 ## 12. Request to Lenovo
 

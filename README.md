@@ -258,10 +258,15 @@ every `GET_CAPABILITY`, `GET_CONNECTOR_STATUS` and `GET_PDOS` command sent throu
 Microsoft's UCSI test tool — while printing `UCSI VERSION from PPM: 0.0.0` and
 `from client driver: 0.0.0`. The transport, the EC mailbox and the ACPI `_DSM`
 all work. Only Linux's `version == 0` check rejects the interface, so a DMI quirk
-in `ucsi_acpi` would let the driver bind here. The driver already carries one
-per-model quirk (LG Gram, selecting an alternate ops table), but nothing that
-touches the version check. What such a quirk would expose is the subject of §2
-and §3.
+in `ucsi_acpi` would let the driver bind here.
+
+That quirk already exists in mainline for two other vendors: Acer Nitro
+ANV15-41 (`8c51ea651d04`, 2026-09-10, assumes UCSI 1.2) and HP ZBook 8 G2i 14
+(`3ee1e1c3fca6`, 2026-10-25, assumes UCSI 1.0). Both override `read_version`
+only when the firmware returns zero, and both warn with `dev_warn()` so the
+assumption is visible. There is no Lenovo entry, so this machine still has no
+automatic fix — see [Upstream](#upstream). What such a quirk would expose is the
+subject of §2 and §3.
 
 ### 2. `GET_PDOS` truncates a four-PDO request to one PDO
 
@@ -632,6 +637,19 @@ UCSI maintainer Heikki Krogerus:
 
 > "Again with the missing version. Please contact Lenovo. This is a bug in their
 > firmware. The version field must supply the actual ucsi version."
+
+Six months later, mainline took the workaround for two other vendors with the
+same zero-version defect, both DMI-gated and both `dev_warn()`-ing:
+
+| Commit | Machine | Assumes | Merged |
+|---|---|---|---|
+| `8c51ea651d04` | Acer Nitro ANV15-41 | UCSI 1.2 | 2026-09-10 |
+| `3ee1e1c3fca6` | HP ZBook 8 G2i 14 (`8ED9`) | UCSI 1.0 | 2026-10-25 |
+
+Both were reviewed by the UCSI maintainer. Neither is Lenovo. On this machine a
+`read_version` override returning `0x0110` binds and registers both connectors,
+so the same three-line quirk would work here; the open question is whether it
+will be accepted for a model that is out of support.
 
 ## License
 
