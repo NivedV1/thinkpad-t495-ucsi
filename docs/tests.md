@@ -75,6 +75,50 @@ typec port1: bound usb3-port4 (ops connector_ops)
 
 `0x0100` and `0x0110` gave identical results.
 
+## T3b — bind without writing firmware
+
+The same binding, done by replacing the driver instead of the register. This is
+the change proposed upstream ([`patches/`](../patches)), and it is the only
+route that touches no firmware-owned memory.
+
+```bash
+sudo ./scripts/15-build-quirk.sh
+```
+
+It fetches `ucsi_acpi.c` and `ucsi.h` for `$(uname -r)`, applies the DMI quirk,
+builds out-of-tree, unloads the stock module and inserts the rebuilt one.
+
+Expected:
+
+```text
+ucsi_acpi USBC000:00: UCSI version is zero, assuming 1.1
+typec port1: bound usb1-port4 (ops connector_ops)
+typec port1: bound usb3-port4 (ops connector_ops)
+
+== typec ==
+   port0
+   port0-partner
+   port1
+
+== partner source capabilities (what sysfs exposes) ==
+   1:fixed_supply  5000mV  3000mA
+   power_operation_mode: usb_power_delivery
+```
+
+`UCSI_VERSION_1_0` and `1_1` behave identically here; 1.1 is kept because
+`GET_CAPABILITY` advertises `bcdUsbTypeCVersion 0x0110`.
+
+With the 65 W adapter on connector 1, the full capture is
+[`data/snapshots/lenovo-65w-kernel-quirk.txt`](../data/snapshots/lenovo-65w-kernel-quirk.txt):
+the quirk makes the ports and the RDO visible, and sysfs still reports one
+source PDO (5 V / 3 A) against the four the firmware has.
+
+Undo:
+
+```bash
+sudo rmmod ucsi_acpi && sudo modprobe ucsi_acpi
+```
+
 ## T4 — plain device, correct case
 
 Plug a USB audio adapter or a USB 2.0 stick into one connector.

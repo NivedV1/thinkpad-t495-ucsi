@@ -539,6 +539,25 @@ ucsi_peek.patch=0           # 0 = never write
 ucsi_peek.patch_ver=0x0100  # value used only when patch=1
 ```
 
+### Option B — bind with the kernel quirk, no firmware write
+
+[`patches/`](patches) holds the change proposed upstream: a `read_version`
+override in `ucsi_acpi.c` that substitutes UCSI 1.1 when the register reads
+zero, gated on this machine's DMI — the same shape as the Acer and HP quirks
+already merged. It replaces the driver instead of the value, so the UCSI
+register block is never written.
+
+```bash
+sudo ./scripts/15-build-quirk.sh   # fetch, build, swap the module, verify
+sudo ./scripts/25-walk-pdos.sh     # same walk, still read-only
+sudo rmmod ucsi_acpi && sudo modprobe ucsi_acpi   # back to stock
+```
+
+Captured result with the 65 W adapter:
+[`data/snapshots/lenovo-65w-kernel-quirk.txt`](data/snapshots/lenovo-65w-kernel-quirk.txt).
+The quirk exposes the ports and the negotiated contract; the truncated
+`GET_PDOS` survives it, so sysfs still calls the adapter a 5 V / 3 A source.
+
 ## How to help: please test on your machine
 
 The single most useful thing you can do is confirm or refute this on hardware
@@ -610,17 +629,18 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 | `report/thinkpad-t495-ucsi-report.md` | the support report prepared for Lenovo (full + web-form version) |
 | `windows_ucsi/` | Windows captures, decoded PDOs, reproduction scripts and provenance |
 | `module/ucsi_peek.c` | the diagnostic module (read-only by default) |
-| `scripts/` | prerequisite check, register dump, enable/undo, PDO walk, snapshot, 1 Hz watch, charge-rate fit |
+| `scripts/` | prerequisite check, register dump, quirk build, enable/undo, PDO walk, snapshot, 1 Hz watch, charge-rate fit |
 | `data/ucsi-register-block.txt` | raw register dumps, three states |
 | `data/acpi/ssdt1-UBTC-excerpt.dsl` | `_SB.UBTC`, `CR01`, `CR02`, `_DSM`, EC mailbox |
 | `data/acpi/port-mapping.md` | `_PLD` byte matching behind the numbering swap |
 | `data/device-matrix.md` | every attachment, verbatim sysfs values |
 | `data/logs/` | 1 Hz state logs and filtered kernel events per test |
 | `data/measurements/` | 72-sample battery trace and the least-squares fit |
-| `data/snapshots/` | recorded sysfs state for the Lenovo 65 W adapter and both phone attaches |
+| `data/snapshots/` | recorded sysfs state for the Lenovo 65 W adapter and both phone attaches, plus one capture with the kernel quirk bound |
 | `docs/tests.md` | how to reproduce each test |
 | `docs/pd-verdict.md` | why `supports_usb_power_delivery` and `power_operation_mode` can disagree |
 | `docs/safety.md` | what the RAM write does and does not do |
+| `patches/` | the DMI quirk proposed upstream for `ucsi_acpi.c` |
 
 Machine identity is published as captured: `20NKS29V00` is the model/type, and
 no separate serial was collected. Device serial numbers were removed from

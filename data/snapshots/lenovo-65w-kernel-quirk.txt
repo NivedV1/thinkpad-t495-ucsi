@@ -1,0 +1,166 @@
+ThinkPad T495 20NKS29V00, Lenovo 65 W adapter, driver bound with the DMI quirk
+Fedora 44, kernel 6.19.10-300.fc44.x86_64, 2026-11-17
+
+Method
+------
+No firmware write. patches/0001-usb-typec-ucsi-acpi-Assume-UCSI-1.1-on-
+ThinkPad-T495.patch adds a read_version override to ucsi_acpi.c that returns
+UCSI_VERSION_1_1 when the register reads 0x0000. It was built out-of-tree
+against the running kernel's headers, the stock module was unloaded and the
+rebuilt one inserted:
+
+  sudo rmmod ucsi_acpi
+  sudo insmod ucsi_acpi.ko
+
+The UCSI register block was never written, so nothing below depends on the
+RAM patch used by scripts/20-enable-ucsi.sh. UCSI_VERSION_1_0 and 1_1 were
+both tested: ports, capabilities and RDO were identical, and 1.1 is kept
+because GET_CAPABILITY advertises bcdUsbTypeCVersion 0x0110.
+
+Result
+------
+  driver            bound, "UCSI version is zero, assuming 1.1"
+  ports             port0, port1, partner attached to port0 (connector 1)
+  partner PD        yes, power_operation_mode = usb_power_delivery
+  negotiated        RDO 0x43051545: object position 4, 20 V at 3.25 A = 65 W
+  sysfs sees        one partner source PDO, 5 V / 3 A
+  firmware has      four partner source PDOs, 5 / 9 / 15 / 20 V
+  local source PDOs invalid: 0 mV / 0 mA (connector 1), 1050 mV / 2560 mA
+                    (connector 2) - unchanged by the quirk
+
+So the quirk makes the Type-C stack and the negotiated contract visible, and
+the GET_PDOS truncation survives it: sysfs still describes the 65 W adapter as
+a 5 V / 3 A source.
+
+Raw
+---
+== dmesg (ucsi/typec) ==
+  [ 5002.775746] ucsi_acpi USBC000:00: UCSI version is zero, assuming 1.1
+  [ 5005.996469] typec port1: bound usb1-port4 (ops connector_ops)
+  [ 5005.996500] typec port1: bound usb3-port4 (ops connector_ops)
+
+== /sys/class/typec ==
+  port0
+  port0-partner
+  port1
+
+== port0 ==
+  power_role                   source [sink]
+  data_role                    [device]
+  power_operation_mode         usb_power_delivery
+  usb_typec_revision           1.1
+  usb_power_delivery_revision  2.0
+
+== port1 ==
+  power_role                   source [sink]
+  data_role                    [device]
+  power_operation_mode         default
+
+== port0-partner ==
+  supports_usb_power_delivery  yes
+  usb_power_delivery_revision  0.0
+  number_of_alternate_modes    0
+
+== partner source capabilities, as Linux sees them (sysfs) ==
+  1:fixed_supply
+    voltage            5000mV
+    maximum_current    3000mA
+    peak_current       1
+    unconstrained_power 1
+    dual_role_power    0
+    dual_role_data     1
+
+== local source capabilities, connector 1 (sysfs) ==
+  1:fixed_supply
+    voltage            0mV
+    maximum_current    0mA
+    peak_current       0
+    unconstrained_power 0
+    dual_role_power    0
+    dual_role_data     0
+
+== sink capabilities advertised to the partner (sysfs) ==
+  1:fixed_supply
+    voltage            5000mV
+    operational_current 100mA
+    unconstrained_power 0
+    dual_role_power    1
+    dual_role_data     1
+
+== per-offset GET_PDOS walk ==
+  == partner source PDOs (the charger) ==
+  conn 1 partner 1 offset 0  0x0A11912C   5000 mV  3000 mA (fixed)
+  conn 1 partner 1 offset 1  0x0012D12C   9000 mV  3000 mA (fixed)
+  conn 1 partner 1 offset 2  0x0014B12C  15000 mV  3000 mA (fixed)
+  conn 1 partner 1 offset 3  0x00164145  20000 mV  3250 mA (fixed)
+  conn 2 partner 1 offset 0  no data (end of list)
+  conn 2 partner 1 offset 1  no data (end of list)
+  conn 2 partner 1 offset 2  no data (end of list)
+  conn 2 partner 1 offset 3  no data (end of list)
+  
+  == local source PDOs (what the laptop advertises) ==
+  conn 1 partner 0 offset 0  0x15000000      0 mV     0 mA (fixed)
+  conn 1 partner 0 offset 1  no data (end of list)
+  conn 1 partner 0 offset 2  no data (end of list)
+  conn 1 partner 0 offset 3  no data (end of list)
+  conn 2 partner 0 offset 0  0x15005500   1050 mV  2560 mA (fixed)
+  conn 2 partner 0 offset 1  no data (end of list)
+  conn 2 partner 0 offset 2  no data (end of list)
+  conn 2 partner 0 offset 3  no data (end of list)
+  
+  Each group of four is one connector. The debugfs interface does not
+  expose the CCI DataLength, so a zero reply is the end-of-list signal.
+  Compare with windows_ucsi/README.md, which does the same walk.
+
+== negotiated contract (GET_CONNECTOR_STATUS via debugfs) ==
+  command  0x010012  (GET_CONNECTOR_STATUS, connector 1)
+  response 0x011002000120000143051545202b4040
+  (debugfs prints the 16-byte MESSAGE_IN little-endian; byte 0 is the
+   rightmost pair, so the status bytes read 40 40 2b 20 45 15 05 43 01)
+  power_operation_mode before/after: usb_power_delivery / usb_power_delivery
+
+== battery ==
+  voltage_now  12328000
+  current_now  
+  power_now    0
+  capacity     90
+  status       Not charging
+
+Decoding the negotiated contract
+--------------------------------
+  RDO 0x43051545
+    RDO_OBJ_POS        (bits 30..28) = 4      -> PDO 4, the 20 V object
+    RDO_GIVE_BACK      (bit 27)      = 0
+    RDO_CAP_MISMATCH   (bit 26)      = 0      -> source satisfied the request
+    RDO_USB_COMM       (bit 25)      = 1
+    RDO_NO_SUSPEND     (bit 24)      = 1
+    operating current  (bits 19..10) = 325    -> 3.25 A
+    max current        (bits 9..0)   = 325    -> 3.25 A
+  20 V x 3.25 A = 65 W, which is the adapter's rating. The same RDO was read
+  under Windows and in every earlier Linux capture on this machine.
+
+  Partner source PDOs, from the per-offset walk above:
+
+    0x0A11912C   5 V / 3 A    ( 15 W)
+    0x0012D12C   9 V / 3 A    ( 27 W)
+    0x0014B12C  15 V / 3 A    ( 45 W)
+    0x00164145  20 V / 3.25 A ( 65 W)  <- selected by the RDO
+
+  Sysfs exposes only the first of those four. That is the defect described in
+  docs/pd-verdict.md: ucsi_get_pdos() asks for four, gets one back, and returns
+  without requesting offsets 1..3.
+
+Notes on this capture
+---------------------
+- The adapter was connected to connector 1 (port0); connector 2 had nothing
+  attached, which is why its partner list is empty.
+- port0-partner reports usb_power_delivery_revision 0.0. Another field the
+  firmware does not fill in; it does not affect the contract above.
+- On one earlier load of the same module, GET_CAPABILITY returned
+  num_connectors 0x82 and the kernel logged "Invalid num_connectors 130.
+  Likely buggy FW" before clearing the reserved bit and continuing with two
+  connectors. Two subsequent loads read a clean 0x02. Recorded because it
+  points at the same firmware data quality, not at the quirk.
+- The battery was at 90 % and not charging during this capture, so the input
+  power could not be measured here; see data/measurements/ for the ~17 W
+  figures taken while charging.
