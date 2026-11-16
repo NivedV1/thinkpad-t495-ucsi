@@ -558,6 +558,22 @@ Captured result with the 65 W adapter:
 The quirk exposes the ports and the negotiated contract; the truncated
 `GET_PDOS` survives it, so sysfs still calls the adapter a 5 V / 3 A source.
 
+### See it live
+
+[`tools/typec_gui.py`](tools/typec_gui.py) is a small GTK4 window: one block per
+connector, what is attached, the sysfs PDO list, and — on request — the
+firmware's full list and the negotiated contract, kept in separate sections so
+the two cannot be confused.
+
+```bash
+python3 tools/typec_gui.py
+```
+
+It reads sysfs only until you press **Full data**, which runs
+[`tools/ucsi_walk.py`](tools/ucsi_walk.py) through polkit for the per-offset
+walk. `python3 tools/typec_core.py --walk` prints the same thing as text. See
+[`tools/README.md`](tools/README.md).
+
 ## How to help: please test on your machine
 
 The single most useful thing you can do is confirm or refute this on hardware
@@ -641,6 +657,7 @@ Please do **not** open an issue with only "me too" — the model, BIOS, kernel,
 | `docs/pd-verdict.md` | why `supports_usb_power_delivery` and `power_operation_mode` can disagree |
 | `docs/safety.md` | what the RAM write does and does not do |
 | `patches/` | the DMI quirk proposed upstream for `ucsi_acpi.c` |
+| `tools/` | GTK viewer, shared sysfs model, privileged walk helper |
 
 Machine identity is published as captured: `20NKS29V00` is the model/type, and
 no separate serial was collected. Device serial numbers were removed from
