@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import sys
+import time
 
 import gi
 
@@ -42,6 +43,7 @@ class Window(Adw.ApplicationWindow):
 
         self.walk: dict | None = None
         self.walk_error: str | None = None
+        self.walk_at: str | None = None
         self.walking = False
         self.signature: tuple | None = None
         self.machine: core.Machine | None = None
@@ -49,7 +51,6 @@ class Window(Adw.ApplicationWindow):
 
         header = Gtk.HeaderBar()
         self.walk_button = Gtk.Button(label="Full data")
-        self.walk_button.set_icon_name("system-search-symbolic")
         self.walk_button.set_tooltip_text(
             "Read every PDO through the UCSI mailbox (asks for authorisation)"
         )
@@ -169,6 +170,7 @@ class Window(Adw.ApplicationWindow):
         else:
             for port in machine.ports:
                 self.add_port(port)
+            self.add_group(self.firmware_group(machine))
 
         if machine.usb_devices:
             usb = Adw.PreferencesGroup(
@@ -285,6 +287,54 @@ class Window(Adw.ApplicationWindow):
                 local.add(self.pdo_row(pdo, False))
             self.add_group(local)
 
+    def firmware_group(self, machine: core.Machine) -> Adw.PreferencesGroup:
+        """The in-page way into the privileged read; the header button is easy to miss."""
+        group = Adw.PreferencesGroup(
+            title="Firmware data",
+            description="sysfs stops at the first PDO here. The full list and the "
+            "negotiated contract come from the firmware, one object at a time.",
+        )
+
+        if self.walking:
+            row = Adw.ActionRow(
+                title="Reading the mailbox…",
+                subtitle="Authorise the request with your fingerprint or password.",
+            )
+            spinner = Gtk.Spinner()
+            spinner.start()
+            row.add_suffix(spinner)
+            group.add(row)
+            return group
+
+        if self.walk:
+            count = sum(len(p.walk_source or ()) for p in machine.ports)
+            subtitle = f"{count} source PDOs"
+            if self.walk_at:
+                subtitle += f" · read at {self.walk_at}"
+            row = Adw.ActionRow(title="Firmware view loaded", subtitle=subtitle)
+            row.add_prefix(Gtk.Image.new_from_icon_name("object-select-symbolic"))
+            again = Gtk.Button(label="Re-read")
+            again.add_css_class("flat")
+            again.connect("clicked", self.on_walk)
+            row.add_suffix(again)
+            group.add(row)
+            return group
+
+        row = Adw.ActionRow(
+            title="Read the full PDO list",
+            subtitle="One GET_PDOS per offset through the UCSI mailbox. "
+            "Asks for authorisation; read-only.",
+        )
+        row.add_prefix(Gtk.Image.new_from_icon_name("system-search-symbolic"))
+        row.set_activatable(True)
+        row.connect("activated", self.on_walk)
+        button = Gtk.Button(label="Read")
+        button.add_css_class("suggested-action")
+        button.connect("clicked", self.on_walk)
+        row.add_suffix(button)
+        group.add(row)
+        return group
+
     # -- actions ---------------------------------------------------------
 
     def on_walk(self, _button) -> None:
@@ -293,6 +343,7 @@ class Window(Adw.ApplicationWindow):
         self.walking = True
         self.walk_button.set_sensitive(False)
         self.walk_button.set_label("Reading…")
+        self.refresh(force=True)
 
         import threading
 
@@ -309,10 +360,12 @@ class Window(Adw.ApplicationWindow):
         if ok:
             self.walk = data
             self.walk_error = None
+            self.walk_at = time.strftime("%H:%M")
             self.toast.add_toast(Adw.Toast(title="Read the full PDO list"))
         else:
             self.walk = None
             self.walk_error = str(data)
+            self.walk_at = None
             self.toast.add_toast(Adw.Toast(title="Full data failed"))
         self.refresh(force=True)
         return False

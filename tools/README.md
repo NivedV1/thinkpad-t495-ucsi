@@ -31,12 +31,13 @@ this checkout, so run it again if the repository moves.
 - `/sys/bus/usb/devices/` — attached USB devices. The kernel does not expose
   which connector they arrived on here, so the window does not claim one.
 
-**Full data** is the only privileged path. It runs `ucsi_walk.py` through
-`pkexec` and reads `GET_PDOS` per offset plus `GET_CONNECTOR_STATUS`, which is
-where the four PDOs and the negotiated contract come from. It is opt-in for a
-reason: the driver owns that mailbox, and the helper sends one command at a
-time. Decline the authorisation prompt and the window keeps working from sysfs
-alone.
+**Full data** is the only privileged path. It is offered both as a header
+button and as a **Read the full PDO list** row at the bottom of the page; it
+runs `ucsi_walk.py` through `pkexec` and reads `GET_PDOS` per offset plus
+`GET_CONNECTOR_STATUS`, which is where the four PDOs and the negotiated
+contract come from. It is opt-in for a reason: the driver owns that mailbox,
+and the helper sends one command at a time. Decline the authorisation prompt
+and the window keeps working from sysfs alone.
 
 ## No ports at all
 

@@ -569,7 +569,8 @@ the two cannot be confused.
 python3 tools/typec_gui.py
 ```
 
-It reads sysfs only until you press **Full data**, which runs
+It reads sysfs only until you press **Full data** (or **Read** in the
+*Firmware data* group at the bottom), which runs
 [`tools/ucsi_walk.py`](tools/ucsi_walk.py) through polkit for the per-offset
 walk. `python3 tools/typec_core.py --walk` prints the same thing as text. See
 [`tools/README.md`](tools/README.md).
